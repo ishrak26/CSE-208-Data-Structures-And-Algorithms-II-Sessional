@@ -64,7 +64,7 @@ public:
 
     // returns -1 if forest i.e. disconnected
     // taken_edges will be updated with the edges actually included in the MST
-    ld find_MST_Prim(vector<pair<int, int> > &taken_edges) { // O(V + VlogV) = O(ElogV)
+    ld find_MST_Prim(vector<pair<int, int> > &taken_edges) { // O(V + ElogV) = O(ElogV)
         vector<bool> taken(n, 0); // O(V)
         priority_queue<pair<ld, pair<int, int> >, vector<pair<ld, pair<int, int> > >, greater<pair<ld, pair<int, int> > > > pq; // min-heap
         // (weight, (u, v)), where u is the predecessor of v
@@ -105,7 +105,7 @@ public:
     // taken_edges will be updated with the edges actually included in the MST
     ld find_MST_Kruskal(vector<pair<int, int> > &taken_edges) { // O(V + ElogV) = O(ElogV)
 
-        // sort the edges based on cost in increasing order
+        // sort the edges based on cost in increasing order of weights
         assert(costs.size() == m);
         sort(costs.begin(), costs.end()); // O(ElogE) = O(ElogV)
 
@@ -117,7 +117,7 @@ public:
 
         ld mst = 0.0;
 
-        // traverse through all the edges
+        // traverse through all the edges O(E)
         for (int i = 0; i < m; i++) { // O(ElogV)
             int idx = costs[i].second;
             int u = edges[idx].first;
