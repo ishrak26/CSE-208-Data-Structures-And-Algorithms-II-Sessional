@@ -22,6 +22,8 @@ void print_edge_list(vector<pair<int, int> > &edges, int n) {
 }
 
 int main() {
+    freopen("mst_in.txt", "r", stdin); // input from a given text file
+
     int n, m;
     cin >> n >> m;
     Graph G(n, m);
