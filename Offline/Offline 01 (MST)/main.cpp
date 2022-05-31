@@ -1,6 +1,4 @@
-#include<iostream>
-#include<cassert>
-#include<cmath>
+#include <bits/stdc++.h>
 #include "Graph.h"
 
 using namespace std;
@@ -79,5 +77,33 @@ int main() {
 1 2 4.0
 
 --> 7.0
+
+7 14
+0 2 21
+0 1 14
+1 2 15
+0 5 7
+5 1 2
+1 6 19
+5 6 18
+6 2 3
+5 3 13
+5 4 15
+6 4 2
+0 3 5
+2 4 4
+3 4 22
+
+--> 34
+
+4 6
+0 1 2.5
+1 2 3.14
+3 2 2.78
+0 3 9.8
+2 0 6.626
+3 1 1.6
+
+--> 6.88
 
 */
