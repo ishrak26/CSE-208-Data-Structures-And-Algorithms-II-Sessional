@@ -60,5 +60,81 @@ public:
 
         return dis[des]==INF ? -1 : dis[des];
     }
+
+    // detect negative cycle
+    int bellman_ford(int src, int des, vector<int> &path, bool &neg_cycle, bool &unreachable) {
+        vector<int> dis(n, INF);
+        dis[src] = 0;
+        vector<int> par(n, -1);
+
+        for (int i = 1; i < n; i++) {
+            int flag = 1;
+            for (int u = 0; u < n; u++) {
+                int sz = adj[u].size();
+                for (int j = 0; j < sz; j++) {
+                    int v = adj[u][j].first;
+                    int w = adj[u][j].second;
+                    if (dis[u] < INF && dis[u] + w < dis[v]) { // dis[u] must first be reachable from src
+                        dis[v] = max(-INF, dis[u] + w); // dis[v] can never be less than -INF
+                        par[v] = u;
+                        if (flag) flag = 0;
+                    }
+                }
+            }
+            if (flag) break; // no relaxation took place in this iteration i.e. end of relaxation
+        }
+
+        for (int u = 0; u < n; u++) {
+            int sz = adj[u].size();
+            for (int j = 0; j < sz; j++) {
+                int v = adj[u][j].first;
+                int w = adj[u][j].second;
+                if (dis[u] < INF && dis[u] + w < dis[v]) { // dis[u] must first be reachable from src
+                    // relaxation still possible
+                    // negative cycle
+                    neg_cycle = true;
+                    return -1;
+                }
+            }
+        }
+        // no negative cycle
+
+        // check if des is unreachable from src
+        if (dis[des] == INF) {
+            unreachable = true;
+            return -1;
+        }
+
+        // des is reachable from src
+        // backtrack the path
+        for (int curr = des; curr != -1; curr = par[curr]) {
+            path.push_back(curr);
+        }
+        reverse(path.begin(), path.end());
+
+        return dis[des];
+
+
+//        to see if the negative cycle impacts the des
+//        for (int i = 1; i < n; i++) {
+//            int flag = 1;
+//            for (int u = 0; u < n; u++) {
+//                int sz = adj[u].size();
+//                for (int j = 0; j < sz; j++) {
+//                    int v = adj[u][j].first;
+//                    int w = adj[u][j].second;
+//                    if (dis[u] < INF) {
+//                        // u is reachable from 1
+//                        dis[v] = max(-INF, dis[v]);
+//                        if (dis[u] + w < dis[v]) { // relaxation still possible
+//                            dis[v] = -INF; // v is reachable through a neg cycle
+//                            if (flag) flag = 0;
+//                        }
+//                    }
+//                }
+//            }
+//            if (flag) break; // no relaxation took place in this iteration i.e. end of relaxation
+//        }
+    }
 };
 

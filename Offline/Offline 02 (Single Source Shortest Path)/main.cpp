@@ -39,6 +39,23 @@ int main() {
             print_path(path);
         }
     }
+    else {
+        // bellman-ford
+        bool neg_cycle = false, isUnreachable = false;
+        vector<int> path;
+        int cost = G.bellman_ford(src, des, path, neg_cycle, isUnreachable);
+        if (neg_cycle) {
+            cout << "The graph contains a negative cycle\n";
+        }
+        else if (isUnreachable) {
+            cout << des << " is unreachable from " << src << '\n';
+        }
+        else {
+            cout << "The graph does not contain a negative cycle\n";
+            cout << "Shortest path cost: " << cost << '\n';
+            print_path(path);
+        }
+    }
 
     return 0;
 }
@@ -67,4 +84,39 @@ int main() {
 -->
 Shortest path cost: 1580
 0 -> 7 -> 1 -> 6 -> 4 -> 8 -> 2 -> 5
+
+9 17
+0 7 60
+7 1 -150
+4 8 -70
+6 4 80
+5 1 4000
+8 0 100000
+2 3 -200
+8 2 1000
+0 3 300
+3 8 50000
+3 7 -200
+2 5 120
+6 3 1500
+4 0 90
+5 7 -50
+1 6 100
+4 1 -90
+0 5
+
+-->
+The graph does not contain a negative cycle
+Shortest path cost: 1140
+0 -> 7 -> 1 -> 6 -> 4 -> 8 -> 2 -> 5
+
+4 4
+0 1 1
+1 2 -1
+2 3 -1
+3 0 -1
+0 3
+
+-->
+The graph contains a negative cycle
 */
