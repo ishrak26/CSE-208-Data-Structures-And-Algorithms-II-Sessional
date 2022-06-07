@@ -23,16 +23,16 @@ public:
 
     // returns -1 if des cannot be reached from the src
     // assumes all weights are non-negative
-    int dijkstra(int src, int des, vector<int> &path) {
-        priority_queue<pair<int, int>, vector<pair<int, int> >, greater<pair<int, int> > > pq;
-        vector<int> dis(n, INF);
+    int dijkstra(int src, int des, vector<int> &path) { // O(ElogV + V)
+        priority_queue<pair<int, int>, vector<pair<int, int> >, greater<pair<int, int> > > pq; // (dis[u], u)
+        vector<int> dis(n, INF); // O(V)
         dis[src] = 0;
         pq.push({dis[src], src});
-        vector<int> par(n, -1);
+        vector<int> par(n, -1); // predecessor for each node, O(V)
 
-        while (!pq.empty()) {
+        while (!pq.empty()) { // O(ElogV)
             pair<int, int> p = pq.top();
-            pq.pop();
+            pq.pop(); // O(logV)
             int u = p.second;
             int dist = p.first;
 
@@ -41,41 +41,41 @@ public:
             // sth better has been already processed
             // no need to process this
 
-            for (int i = 0, sz = adj[u].size(); i < sz; i++) {
+            for (int i = 0, sz = adj[u].size(); i < sz; i++) { // in total: O(E *logV)
                 int v = adj[u][i].first;
                 int w = adj[u][i].second;
                 if (dis[u] + w < dis[v]) {
                     dis[v] = dis[u] + w;
                     par[v] = u;
-                    pq.push({dis[v], v});
+                    pq.push({dis[v], v}); // O(logV)
                 }
             }
         }
 
         // backtrack the path
-        for (int curr = des; curr != -1; curr = par[curr]) {
+        for (int curr = des; curr != -1; curr = par[curr]) { // O(V)
             path.push_back(curr);
         }
-        reverse(path.begin(), path.end());
+        reverse(path.begin(), path.end()); // O(V)
 
         return dis[des]==INF ? -1 : dis[des];
     }
 
     // detect negative cycle
-    int bellman_ford(int src, int des, vector<int> &path, bool &neg_cycle, bool &unreachable) {
-        vector<int> dis(n, INF);
+    int bellman_ford(int src, int des, vector<int> &path, bool &neg_cycle, bool &unreachable) { // O(VE)
+        vector<int> dis(n, INF); // O(V)
         dis[src] = 0;
-        vector<int> par(n, -1);
+        vector<int> par(n, -1); // O(V)
 
-        for (int i = 1; i < n; i++) {
+        for (int i = 1; i < n; i++) { // O(VE)
             int flag = 1;
-            for (int u = 0; u < n; u++) {
+            for (int u = 0; u < n; u++) { // O(E) in total
                 int sz = adj[u].size();
                 for (int j = 0; j < sz; j++) {
                     int v = adj[u][j].first;
                     int w = adj[u][j].second;
                     if (dis[u] < INF && dis[u] + w < dis[v]) { // dis[u] must first be reachable from src
-                        dis[v] = max(-INF, dis[u] + w); // dis[v] can never be less than -INF
+                        dis[v] = max(-INF, dis[u] + w); // dis[v] can never be less than -INF, esp applicable for neg weight edges
                         par[v] = u;
                         if (flag) flag = 0;
                     }
@@ -84,7 +84,7 @@ public:
             if (flag) break; // no relaxation took place in this iteration i.e. end of relaxation
         }
 
-        for (int u = 0; u < n; u++) {
+        for (int u = 0; u < n; u++) { // O(E)
             int sz = adj[u].size();
             for (int j = 0; j < sz; j++) {
                 int v = adj[u][j].first;
@@ -107,10 +107,10 @@ public:
 
         // des is reachable from src
         // backtrack the path
-        for (int curr = des; curr != -1; curr = par[curr]) {
+        for (int curr = des; curr != -1; curr = par[curr]) { // O(V)
             path.push_back(curr);
         }
-        reverse(path.begin(), path.end());
+        reverse(path.begin(), path.end()); // O(V)
 
         return dis[des];
 
