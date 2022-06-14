@@ -32,13 +32,13 @@ int main() {
     G.matrixMultiplicationFast(dis_mat_mul_fast);
     G.floydWarshall(dis_floyd);
 
-    cout << "Using Matrix Multiplication:\n";
-    print_matrix(dis_mat_mul_slow, n);
-
-    cout << "Using Matrix Multiplication with Repeated Squaring:\n";
-    print_matrix(dis_mat_mul_fast, n);
-
-    cout << "Using Floyd-Warshall Algorithm\n";
+//    cout << "Using Matrix Multiplication:\n";
+//    print_matrix(dis_mat_mul_slow, n);
+//
+//    cout << "Using Matrix Multiplication with Repeated Squaring:\n";
+//    print_matrix(dis_mat_mul_fast, n);
+//
+//    cout << "Using Floyd-Warshall Algorithm\n";
     print_matrix(dis_floyd, n);
 
     return 0;
@@ -72,4 +72,15 @@ Shortest distance matrix
 INF 0 3 4
 INF INF 0 1
 INF INF INF 0
+
+3 3
+1 2 -1
+2 3 -2
+1 3 -5
+
+-->
+Shortest distance matrix
+0 -1 -5
+INF 0 -2
+INF INF 0
 */

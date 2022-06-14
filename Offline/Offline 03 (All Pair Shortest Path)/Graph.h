@@ -12,7 +12,7 @@ public:
     // n is the no. of vertices, m being the no. of edges
     Graph(int n) { // O(V+E)
         this->n = n;
-        adj.resize(n+1, vector<int> (n+1, INF));
+        adj.resize(n+1, vector<int> (n+1, INF)); // vertices are 1-indexed
 
         for (int i = 1; i <= n; i++) adj[i][i] = 0;
     }
@@ -21,15 +21,15 @@ public:
         adj[u][v] = cost; // directed edge
     }
 
+    void matrixMultiplicationSlow(vector<vector<int> > &dis) { // O(V^4)
+        dis = adj; // first iteration done
 
-    void matrixMultiplicationSlow(vector<vector<int> > &dis) {
-        dis = adj;
-
-        for (int m = 2; m < n; m++) {
+        for (int m = 2; m < n; m++) { // there will be at most n-1 edges for any simple path
             for (int i = 1; i <= n; i++) {
                 for (int j = 1; j <= n; j++) {
                     for (int k = 1; k <= n; k++) {
-                        if (dis[i][k] == INF) continue; // k is unreachable from i
+                        if (dis[i][k] == INF || adj[k][j] == INF) continue; // k is unreachable so far from i, will help for negative weights
+
                         // check if j should be visited from i via k
                         if (dis[i][k] + adj[k][j] < dis[i][j]) {
                             dis[i][j] = dis[i][k] + adj[k][j];
@@ -41,14 +41,15 @@ public:
     }
 
     // using repeated squaring method
-    void matrixMultiplicationFast(vector<vector<int> > &dis) {
-        dis = adj;
+    void matrixMultiplicationFast(vector<vector<int> > &dis) { // O(V^3 * logV)
+        dis = adj; // first iteration done
 
-        for (int m = 2; ; m *= 2) {
-            for (int i = 1; i <= n; i++) {
-                for (int j = 1; j <= n; j++) {
-                    for (int k = 1; k <= n; k++) {
-                        if (dis[i][k] == INF) continue; // k is unreachable from i
+        for (int m = 2; ; m *= 2) { // logV times
+            for (int i = 1; i <= n; i++) { // V times
+                for (int j = 1; j <= n; j++) { // V times
+                    for (int k = 1; k <= n; k++) { // V times
+                        if (dis[i][k] == INF || dis[k][j] == INF) continue; // k is unreachable so far from i, will help for negative weights
+
                         // check if j should be visited from i via k
                         if (dis[i][k] + dis[k][j] < dis[i][j]) {
                             dis[i][j] = dis[i][k] + dis[k][j];
@@ -56,17 +57,18 @@ public:
                     }
                 }
             }
-            if (m >= n) break;
+            if (m >= n) break; // m needs to be at least n-1
         }
     }
 
-    void floydWarshall(vector<vector<int> > &dis) {
+    void floydWarshall(vector<vector<int> > &dis) { // O(V^3)
         dis = adj;
 
         for (int k = 1; k <= n; k++) {
             for (int i = 1; i <= n; i++) {
                 for (int j = 1; j <= n; j++) {
-                    if (dis[i][k] == INF) continue;
+                    if (dis[i][k] == INF || dis[k][j] == INF) continue;
+
                     if (dis[i][k] + dis[k][j] < dis[i][j]) {
                         dis[i][j] = dis[i][k] + dis[k][j];
                     }
