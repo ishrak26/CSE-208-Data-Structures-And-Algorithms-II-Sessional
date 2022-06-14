@@ -12,6 +12,7 @@ void print_matrix(vector<vector<int> > &dis, int n) {
         }
         cout << '\n';
     }
+    cout << '\n';
 }
 
 int main() {
@@ -26,11 +27,18 @@ int main() {
         G.add_weighted_edge(u, v, w);
     }
 
-    vector<vector<int> > dis_mat_mul, dis_floyd;
-    G.matrixMultiplication(dis_mat_mul);
+    vector<vector<int> > dis_mat_mul_slow, dis_mat_mul_fast, dis_floyd;
+    G.matrixMultiplicationSlow(dis_mat_mul_slow);
+    G.matrixMultiplicationFast(dis_mat_mul_fast);
     G.floydWarshall(dis_floyd);
 
-    print_matrix(dis_mat_mul, n);
+    cout << "Using Matrix Multiplication:\n";
+    print_matrix(dis_mat_mul_slow, n);
+
+    cout << "Using Matrix Multiplication with Repeated Squaring:\n";
+    print_matrix(dis_mat_mul_fast, n);
+
+    cout << "Using Floyd-Warshall Algorithm\n";
     print_matrix(dis_floyd, n);
 
     return 0;

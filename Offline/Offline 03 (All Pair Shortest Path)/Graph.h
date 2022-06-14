@@ -22,20 +22,41 @@ public:
     }
 
 
-    void matrixMultiplication(vector<vector<int> > &dis) {
+    void matrixMultiplicationSlow(vector<vector<int> > &dis) {
         dis = adj;
 
         for (int m = 2; m < n; m++) {
-            for (int k = 1; k <= n; k++) {
-                for (int i = 1; i <= n; i++) {
-                    for (int j = 1; j <= n; j++) {
-                        if (dis[i][k] == INF) continue;
+            for (int i = 1; i <= n; i++) {
+                for (int j = 1; j <= n; j++) {
+                    for (int k = 1; k <= n; k++) {
+                        if (dis[i][k] == INF) continue; // k is unreachable from i
+                        // check if j should be visited from i via k
                         if (dis[i][k] + adj[k][j] < dis[i][j]) {
                             dis[i][j] = dis[i][k] + adj[k][j];
                         }
                     }
                 }
             }
+        }
+    }
+
+    // using repeated squaring method
+    void matrixMultiplicationFast(vector<vector<int> > &dis) {
+        dis = adj;
+
+        for (int m = 2; ; m *= 2) {
+            for (int i = 1; i <= n; i++) {
+                for (int j = 1; j <= n; j++) {
+                    for (int k = 1; k <= n; k++) {
+                        if (dis[i][k] == INF) continue; // k is unreachable from i
+                        // check if j should be visited from i via k
+                        if (dis[i][k] + dis[k][j] < dis[i][j]) {
+                            dis[i][j] = dis[i][k] + dis[k][j];
+                        }
+                    }
+                }
+            }
+            if (m >= n) break;
         }
     }
 
