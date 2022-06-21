@@ -61,6 +61,27 @@ class Graph {
         return flow;
     }
 
+    // min-cut
+    void bfs_find_reachable_nodes(int s) {
+        queue<int> q;
+        fill(par.begin(), par.end(), -1);
+        par[s] = -2;
+        q.push(s);
+
+        while (!q.empty()) {
+            int u = q.front();
+            q.pop();
+
+            for (int i = 0, sz = adj[u].size(); i < sz; i++) {
+                int v = adj[u][i];
+                if (par[v] == -1 && cf[u][v] > 0) {
+                    par[v] = u;
+                    q.push(v);
+                }
+            }
+        }
+    }
+
 public:
     Graph(int tot_teams, vector<vector<int> > &games, int cur_team, vector<int> &wins, vector<int> &rems) {
         // count how many nodes will be in the graph
@@ -115,6 +136,15 @@ public:
         }
         // all edges from s to a game is saturated
         return true;
+    }
+
+    void find_eliminating_teams(vector<int> &teams, int tot_teams) {
+        // run a bfs to find reachable nodes from s
+        bfs_find_reachable_nodes(0);
+        // find team vertices reachable from s
+        for (int i = 0; i < tot_teams; i++) {
+            if (par[game_cnt+1+i] != -1) teams.push_back(i);
+        }
     }
 };
 
