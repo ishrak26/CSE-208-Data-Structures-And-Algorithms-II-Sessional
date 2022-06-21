@@ -58,18 +58,23 @@ int main() {
         for (int j = 0; j < n; j++) cin >> games[i][j];
     }
 
-    cerr << '\n';
+    cout << '\n';
     for (int i = 0; i < n; i++) {
-        Graph G(n, games, i, wins, rems);
-        int safe = G.check_saturation();
-        if (!safe) {
+        vector<int> teams;
+        check_if_already_eliminated(teams, wins, wins[i]+rems[i], n); // trivial checking
+
+        if (teams.size() == 0) {
+            // team i could not be eliminated trivially
+            // go for max flow
+            Graph G(n, games, i, wins, rems);
+            bool safe = G.check_saturation();
+
+            if (!safe) G.find_eliminating_teams(teams, n); // find eliminating teams by min-cut
+        }
+
+        if (teams.size() > 0) {
             cout << team_names[i] << " is eliminated.\n";
 
-            // find the teams responsible for elimination
-            vector<int> teams;
-
-            check_if_already_eliminated(teams, wins, wins[i]+rems[i], n);
-            if (teams.size() == 0) G.find_eliminating_teams(teams, n);
             assert(teams.size() > 0);
 
             cout << "They can win at most " << wins[i] << " + " << rems[i] << " = " << wins[i]+rems[i] << " games.\n";
