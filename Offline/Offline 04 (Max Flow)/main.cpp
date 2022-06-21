@@ -35,7 +35,7 @@ void deduce_reasons(vector<int> &teams, vector<int> &wins, vector<vector<int> > 
 
     ld num = games_won + each_other;
     ld den = n;
-    ld avg = num/n;
+    ld avg = num/den;
 
     cout << "So on average, each of the teams in this group wins ";
     cout << games_won+each_other << '/' << n << " = " << avg << " games.\n";
@@ -53,7 +53,7 @@ int main() {
 
     for (int i = 0; i < n; i++) {
         cin >> team_names[i];
-        int foo;
+        int foo; // don't need to track how many matches lost
         cin >> wins[i] >> foo >> rems[i];
         for (int j = 0; j < n; j++) cin >> games[i][j];
     }
@@ -73,11 +73,11 @@ int main() {
         }
 
         if (teams.size() > 0) {
+            // at least one team is responsible for its elimination
+
             cout << team_names[i] << " is eliminated.\n";
-
-            assert(teams.size() > 0);
-
             cout << "They can win at most " << wins[i] << " + " << rems[i] << " = " << wins[i]+rems[i] << " games.\n";
+
             deduce_reasons(teams, wins, games, team_names);
             cout << '\n';
         }
@@ -105,4 +105,21 @@ They can win at most 77 + 3 = 80 games.
 Atlanta has won a total of 83 games.
 They play each other 0 times.
 So on average, each of the teams in this group wins 83/1 = 83 games.
+
+
+
+5
+New_York 75 59 28 0 3 8 7 3
+Baltimore 71 63 28 3 0 2 7 4
+Boston 69 66 27 8 2 0 0 0
+Toronto 63 72 27 7 7 0 0 0
+Detroit 49 86 27 3 4 0 0 0
+
+-->
+Detroit is eliminated.
+They can win at most 49 + 27 = 76 games.
+New_York, Baltimore, Boston and Toronto have won a total of 278 games.
+They play each other 27 times.
+So on average, each of the teams in this group wins 305/4 = 76.25 games.
+
 */
