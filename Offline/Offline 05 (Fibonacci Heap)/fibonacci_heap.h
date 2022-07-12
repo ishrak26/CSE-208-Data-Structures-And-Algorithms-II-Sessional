@@ -264,43 +264,35 @@ public:
 
             // concatenate the children to root list
             concatLists(min, x);
-
-            // remove the minimum
-            min = removeNodeFromList(min);
-
-            if (min != nullptr) {
-                consolidate();
-                cerr << "consolidation done\n";
-            }
         }
-        else {
-            // remove the minimum
-            min = removeNodeFromList(min);
+        // remove the minimum
+        min = removeNodeFromList(min);
 
-            if (min != nullptr) {
-                // traverse through the root list to set the new minimum
-                Node *tmp = min;
-                Node *finish = tmp;
-                do {
-                    if (tmp->getKey() < min->getKey()) {
-                        min = tmp;
-                    }
-                    tmp = tmp->getRight();
-                } while (tmp != finish);
-            }
+        if (min != nullptr) {
+            consolidate();
+//            cerr << "consolidation done\n";
         }
         tot_nodes--;
 
         return ret;
     }
 
-    void printList(Node *x) {
+    void printTree(Node *x) {
+        if (x == nullptr) return;
+        cerr << "root is " << x->getKey() << '\n';
+        cerr << "rootlist is ";
         Node *tmp = x;
         do {
             cerr << tmp->getKey() << ' ';
             tmp = tmp->getRight();
         } while (tmp != x);
-        cerr << '\n';
+        cerr << "\n\n";
+
+        tmp = x;
+        do {
+            printTree(tmp->getChild());
+            tmp = tmp->getRight();
+        } while (tmp != x);
     }
 };
 
