@@ -6,8 +6,117 @@ using namespace std;
 
 template <typename E>
 class Fibonacci_heap {
-    Node<E> *min;
+    class Node {
+        E key;
+        Node *parent;
+        Node *child;
+        Node *right;
+        Node *left;
+        int degree;
+        bool mark;
+        int id;
+
+    public:
+        Node() {
+            parent = child = right = left = nullptr;
+            degree = 0;
+            mark = false;
+            id = -1;
+        }
+
+        Node(const E key) {
+            this->key = key;
+            parent = child = nullptr;
+            right = left = this;
+            degree = 0;
+            mark = false;
+            id = -1;
+        }
+
+        Node(Node *node) {
+            key = node->getKey();
+            parent = node->getParent();
+            child = node->getChild();
+            left = node->getLeft();
+            right = node->getRight();
+            degree = node->getDegree();
+            mark = node->getMark();
+            id = node->getID();
+        }
+
+        ~Node() {
+
+        }
+
+        void setKey(E key) {
+            this->key = key;
+        }
+
+        void setLeft(Node *left) {
+            this->left = left;
+        }
+
+        void setRight(Node *right) {
+            this->right = right;
+        }
+
+        void setParent(Node *parent) {
+            this->parent = parent;
+        }
+
+        void setChild(Node *child) {
+            this->child = child;
+        }
+
+        void setDegree(int degree) {
+            this->degree = degree;
+        }
+
+        void setMark(bool mark) {
+            this->mark = mark;
+        }
+
+        void setID(int id) {
+            this->id = id;
+        }
+
+        E getKey() {
+            return key;
+        }
+
+        Node *getLeft() {
+            return left;
+        }
+
+        Node *getRight() {
+            return right;
+        }
+
+        Node *getParent() {
+            return parent;
+        }
+
+        Node *getChild() {
+            return child;
+        }
+
+        int getDegree() {
+            return degree;
+        }
+
+        bool getMark() {
+            return mark;
+        }
+
+        int getID() {
+            return id;
+        }
+    };
+
+    Node *min;
     int tot_nodes;
+    vector<Node*> node_ids;
+    stack<int> freelist; // node id's currently free
 
     // concatenate b to a
     void concatLists(Node *a, Node *b) {
@@ -116,6 +225,8 @@ class Fibonacci_heap {
         for (int i = 0; i <= deg; i++) {
             if (arr[i] != nullptr) {
                 Node *node = new Node(arr[i]);
+                int idx = arr[i]->getID();
+                node_ids[idx] = node;
                 if (min == nullptr) {
                     // root list hasn't been created yet
                     node->setParent(nullptr);
@@ -179,19 +290,6 @@ public:
         tot_nodes = 0;
     }
 
-    // Union
-    Fibonacci_heap(Fibonacci_heap *h1, Fibonacci_heap *h2) {
-        // to be implemented
-        if (h1.empty()) {
-            if (h2.empty()) {
-                Fibonacci_heap();
-            }
-            else {
-                 ;
-            }
-        }
-    }
-
     ~Fibonacci_heap() {
 
     }
@@ -213,8 +311,22 @@ public:
         return min==nullptr;
     }
 
-    Node *insert(const E key) {
+    int insert(const E key) {
         Node *node = new Node(key);
+
+        int idx = -1;
+        if (!freelist.empty()) {
+            idx = freelist.top();
+            freelist.pop();
+            assert(idx < node_ids.size() && node_ids[idx] == nullptr);
+            node_ids[idx] = node;
+        }
+        else {
+            idx = node_ids.size();
+            node_ids.push_back(node);
+        }
+        node->setID(idx);
+
         if (empty()) {
             min = node;
         }
@@ -226,12 +338,11 @@ public:
             }
         }
         tot_nodes++;
-        return node;
+        return idx;
     }
 
     E extractMinKey() {
         E ret = getMinKey();
-//        cerr << "ret is " << ret << '\n';
 
         Node *x = min->getChild();
         if (x != nullptr) {
@@ -246,33 +357,27 @@ public:
 
             // concatenate the children to root list
             concatLists(min, x);
-
-//            tmp = min;
-//            do {
-//                cerr << tmp->getKey() << ' ';
-//                sleep(1);
-//                tmp = tmp->getRight();
-//            } while (tmp != min);
-//            cerr << '\n';
-
         }
         // remove the minimum
+        int idx = min->getID();
+        node_ids[idx] = nullptr;
+        freelist.push(idx);
         min = removeNodeFromList(min);
         tot_nodes--;
-//        cerr << min->getKey() << '\n';
 
         if (min != nullptr) {
             consolidate();
-//            cerr << "consolidation done\n";
         }
 
         return ret;
     }
 
-    void decreaseKey(Node *x, E key) {
+    void decreaseKey(int id, E key) {
+        assert(id < node_ids.size());
+        Node *x = node_ids[id];
         assert(x != nullptr);
         assert(key <= x->getKey());
-        if (key == x.getKey()) return;
+        if (key == x->getKey()) return;
         x->setKey(key);
         Node *y = x->getParent();
         if (y != nullptr && x->getKey() < y->getKey()) {
@@ -283,6 +388,10 @@ public:
             min = x;
         }
     }
+
+    void deleteNode(int id) [
+        // todo
+    ]
 
     void printTree(Node *x) {
         if (x == nullptr) return;
