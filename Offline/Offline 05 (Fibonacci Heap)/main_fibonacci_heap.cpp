@@ -79,13 +79,76 @@ int main() {
         fib.insert(x);
     }
 
-    cout << "tree is \n";
-    fib.printTree(fib.getMin());
+//    cout << "tree is \n";
+//    fib.printTree(fib.getMin());
 
     cout << "min key is " << fib.extractMinKey() << '\n';
 
+//    cout << "tree is \n";
+//    fib.printTree(fib.getMin());
+
+    cout << "min key is " << fib.extractMinKey() << '\n';
+
+//    cout << "tree is \n";
+//    fib.printTree(fib.getMin());
+
+//    cout << fib.getTotNodes() << '\n';
+
+//    cout << fib.getMinKey() << '\n';
+
+    cout << "min key is " << fib.extractMinKey() << '\n';
+//    cout << "tree is \n";
+//    fib.printTree(fib.getMin());
+
+    cout << "min key is " << fib.extractMinKey() << '\n';
+//    cout << "tree is \n";
+//    fib.printTree(fib.getMin());
+
+    cout << "min key is " << fib.extractMinKey() << '\n';
+//    cout << "tree is \n";
+//    fib.printTree(fib.getMin());
+
+    cout << "min key is " << fib.extractMinKey() << '\n';
+//    cout << "tree is \n";
+//    fib.printTree(fib.getMin());
+
+    cout << "min key is " << fib.extractMinKey() << '\n';
+//    cout << "tree is \n";
+//    fib.printTree(fib.getMin());
+
+    cout << "min key is " << fib.extractMinKey() << '\n';
+//    cout << "tree is \n";
+//    fib.printTree(fib.getMin());
+
+    cout << "min key is " << fib.extractMinKey() << '\n';
+//    cout << "tree is \n";
+//    fib.printTree(fib.getMin());
+
+    cout << "min key is " << fib.extractMinKey() << '\n';
+//    cout << "tree is \n";
+//    fib.printTree(fib.getMin());
+
+    cout << "min key is " << fib.extractMinKey() << '\n';
+//    cout << "tree is \n";
+//    fib.printTree(fib.getMin());
+
+    cout << "min key is " << fib.extractMinKey() << '\n';
+//    cout << "tree is \n";
+//    fib.printTree(fib.getMin());
+
+    cout << "min key is " << fib.extractMinKey() << '\n';
+//    cout << "tree is \n";
+//    fib.printTree(fib.getMin());
+
+    cout << "min key is " << fib.extractMinKey() << '\n';
+//    cout << "tree is \n";
+//    fib.printTree(fib.getMin());
+
+    cout << "min key is " << fib.extractMinKey() << '\n';
     cout << "tree is \n";
     fib.printTree(fib.getMin());
+
+    cout << fib.empty() << ' ' << fib.getTotNodes() << '\n';
 
     return 0;
 }

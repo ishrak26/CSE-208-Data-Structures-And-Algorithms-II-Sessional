@@ -1,4 +1,5 @@
 #include <bits/stdc++.h>
+#include<unistd.h>
 
 using namespace std;
 
@@ -26,6 +27,16 @@ class Fibonacci_heap {
             right = left = this;
             degree = 0;
             mark = false;
+        }
+
+        Node(Node *node) {
+            key = node->getKey();
+            parent = node->getParent();
+            child = node->getChild();
+            left = node->getLeft();
+            right = node->getRight();
+            degree = node->getDegree();
+            mark = node->getMark();
         }
 
         ~Node() {
@@ -68,6 +79,10 @@ class Fibonacci_heap {
             return right;
         }
 
+        Node *getParent() {
+            return parent;
+        }
+
         Node *getChild() {
             return child;
         }
@@ -90,8 +105,9 @@ class Fibonacci_heap {
         assert(b->getLeft() != nullptr && b->getRight() != nullptr);
         a->getLeft()->setRight(b);
         b->getLeft()->setRight(a);
+        Node *tmp = a->getLeft();
         a->setLeft(b->getLeft());
-        b->setLeft(a->getLeft());
+        b->setLeft(tmp);
     }
 
     // returns the right node of x
@@ -157,8 +173,21 @@ class Fibonacci_heap {
             arr[i] = nullptr;
         }
         assert(!empty()); // min != nullptr
-        Node *w = min;
+
+        // count the length of the rootlist
+        int cnt = 0;
+        Node *tmp = min;
         do {
+//            cerr << tmp->getKey() << ' ';
+//            sleep(1);
+            tmp = tmp->getRight();
+            cnt++;
+        } while (tmp != min);
+//        cerr << '\n';
+//        cerr << "cnt is " << cnt << '\n';
+
+        Node *w = min;
+        for (int i = 0; i < cnt; i++) {
             Node *x = w;
             w = w->getRight();
             int d = x->getDegree();
@@ -171,28 +200,42 @@ class Fibonacci_heap {
                 consolidateLink(x, y);
                 arr[d] = nullptr;
                 d++;
+//                cerr << tot_nodes << ' ' << deg << ' ' << d << '\n';
                 assert(d <= deg);
             }
             arr[d] = x;
-        } while (w != min);
+        }
+
+//        cerr << "aux array: ";
+//        for (int i = 0; i <= deg; i++) {
+//            if (arr[i] == nullptr) cerr << -1 << ' ';
+//            else cerr << arr[i]->getKey() << ' ';
+//        }
+//        cerr << '\n';
 
         // build the new root list from arr
         min = nullptr;
         for (int i = 0; i <= deg; i++) {
             if (arr[i] != nullptr) {
+                Node *node = new Node(arr[i]);
                 if (min == nullptr) {
                     // root list hasn't been created yet
-                    min = arr[i];
+                    node->setParent(nullptr);
+                    node->setLeft(node);
+                    node->setRight(node);
+                    min = node;
                 }
                 else {
-                    // insert arr[i] into the root list
-                    insertNode(min, arr[i]);
-                    if (arr[i]->getKey() < min->getKey()) {
-                        min = arr[i];
+                    // insert new_node into the root list
+                    node->setParent(nullptr);
+                    insertNode(min, node);
+                    if (node->getKey() < min->getKey()) {
+                        min = node;
                     }
                 }
             }
         }
+        delete[] arr;
     }
 
 public:
@@ -252,6 +295,7 @@ public:
 
     E extractMinKey() {
         E ret = getMinKey();
+//        cerr << "ret is " << ret << '\n';
 
         Node *x = min->getChild();
         if (x != nullptr) {
@@ -261,18 +305,30 @@ public:
                 x->setParent(nullptr);
                 x = x->getRight();
             } while (x != tmp);
+            min->setDegree(0);
+            min->setChild(nullptr);
 
             // concatenate the children to root list
             concatLists(min, x);
+
+//            tmp = min;
+//            do {
+//                cerr << tmp->getKey() << ' ';
+//                sleep(1);
+//                tmp = tmp->getRight();
+//            } while (tmp != min);
+//            cerr << '\n';
+
         }
         // remove the minimum
         min = removeNodeFromList(min);
+        tot_nodes--;
+//        cerr << min->getKey() << '\n';
 
         if (min != nullptr) {
             consolidate();
 //            cerr << "consolidation done\n";
         }
-        tot_nodes--;
 
         return ret;
     }
@@ -283,7 +339,8 @@ public:
         cerr << "rootlist is ";
         Node *tmp = x;
         do {
-            cerr << tmp->getKey() << ' ';
+//            cerr << tmp->getKey() << ' ';
+            cerr << tmp->getKey() << ',' << tmp->getDegree() << ' ';
             tmp = tmp->getRight();
         } while (tmp != x);
         cerr << "\n\n";
