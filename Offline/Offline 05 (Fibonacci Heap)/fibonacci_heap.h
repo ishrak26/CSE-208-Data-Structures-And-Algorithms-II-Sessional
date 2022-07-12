@@ -1,102 +1,12 @@
 #include <bits/stdc++.h>
 #include<unistd.h>
+#include "node.h"
 
 using namespace std;
 
 template <typename E>
 class Fibonacci_heap {
-    class Node {
-        E key;
-        Node *parent;
-        Node *child;
-        Node *right;
-        Node *left;
-        int degree;
-        bool mark;
-
-    public:
-        Node() {
-            parent = child = right = left = nullptr;
-            degree = 0;
-            mark = false;
-        }
-
-        Node(const E key) {
-            this->key = key;
-            parent = child = nullptr;
-            right = left = this;
-            degree = 0;
-            mark = false;
-        }
-
-        Node(Node *node) {
-            key = node->getKey();
-            parent = node->getParent();
-            child = node->getChild();
-            left = node->getLeft();
-            right = node->getRight();
-            degree = node->getDegree();
-            mark = node->getMark();
-        }
-
-        ~Node() {
-
-        }
-
-        void setLeft(Node *left) {
-            this->left = left;
-        }
-
-        void setRight(Node *right) {
-            this->right = right;
-        }
-
-        void setParent(Node *parent) {
-            this->parent = parent;
-        }
-
-        void setChild(Node *child) {
-            this->child = child;
-        }
-
-        void setDegree(int degree) {
-            this->degree = degree;
-        }
-
-        void setMark(bool mark) {
-            this->mark = mark;
-        }
-
-        E getKey() {
-            return key;
-        }
-
-        Node *getLeft() {
-            return left;
-        }
-
-        Node *getRight() {
-            return right;
-        }
-
-        Node *getParent() {
-            return parent;
-        }
-
-        Node *getChild() {
-            return child;
-        }
-
-        int getDegree() {
-            return degree;
-        }
-
-        bool getMark() {
-            return mark;
-        }
-    };
-
-    Node *min;
+    Node<E> *min;
     int tot_nodes;
 
     // concatenate b to a
@@ -178,13 +88,9 @@ class Fibonacci_heap {
         int cnt = 0;
         Node *tmp = min;
         do {
-//            cerr << tmp->getKey() << ' ';
-//            sleep(1);
             tmp = tmp->getRight();
             cnt++;
         } while (tmp != min);
-//        cerr << '\n';
-//        cerr << "cnt is " << cnt << '\n';
 
         Node *w = min;
         for (int i = 0; i < cnt; i++) {
@@ -200,18 +106,10 @@ class Fibonacci_heap {
                 consolidateLink(x, y);
                 arr[d] = nullptr;
                 d++;
-//                cerr << tot_nodes << ' ' << deg << ' ' << d << '\n';
                 assert(d <= deg);
             }
             arr[d] = x;
         }
-
-//        cerr << "aux array: ";
-//        for (int i = 0; i <= deg; i++) {
-//            if (arr[i] == nullptr) cerr << -1 << ' ';
-//            else cerr << arr[i]->getKey() << ' ';
-//        }
-//        cerr << '\n';
 
         // build the new root list from arr
         min = nullptr;
@@ -236,6 +134,43 @@ class Fibonacci_heap {
             }
         }
         delete[] arr;
+    }
+
+    void cut(Node *x, Node *y) {
+        assert(x->getParent() == y && y->getChild() == x);
+        // remove x from the child list of y
+        if (y->getDegree() == 1) {
+            // x is the only child
+            y->setChild(nullptr);
+            y->setDegree(0);
+        }
+        else {
+            // x has siblings
+            assert(y->getDegree() > 1);
+            y->setDegree(y->getDegree() - 1);
+            y->setChild(x->getRight());
+            y->getChild()->setLeft(x->getLeft());
+            x->getLeft()->setRight(y->getChild());
+        }
+
+        // add x to root list
+        x->setParent(nullptr);
+        insertNode(min, x);
+        x->setMark(false);
+    }
+
+    void cascadingCut(Node *y) {
+        assert(y != nullptr);
+        Node *z = y->getParent();
+        if (z != nullptr) {
+            if (y->getMark() == false) {
+                y->setMark(true);
+            }
+            else {
+                cut(y, z);
+                cascadingCut(z);
+            }
+        }
     }
 
 public:
@@ -278,7 +213,7 @@ public:
         return min==nullptr;
     }
 
-    void insert(const E key) {
+    Node *insert(const E key) {
         Node *node = new Node(key);
         if (empty()) {
             min = node;
@@ -291,6 +226,7 @@ public:
             }
         }
         tot_nodes++;
+        return node;
     }
 
     E extractMinKey() {
@@ -331,6 +267,21 @@ public:
         }
 
         return ret;
+    }
+
+    void decreaseKey(Node *x, E key) {
+        assert(x != nullptr);
+        assert(key <= x->getKey());
+        if (key == x.getKey()) return;
+        x->setKey(key);
+        Node *y = x->getParent();
+        if (y != nullptr && x->getKey() < y->getKey()) {
+            cut(x, y);
+            cascadingCut(y);
+        }
+        if (x->getKey() < min->getKey()) {
+            min = x;
+        }
     }
 
     void printTree(Node *x) {

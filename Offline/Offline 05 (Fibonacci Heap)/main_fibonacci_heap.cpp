@@ -97,6 +97,9 @@ int main() {
 //    cout << fib.getMinKey() << '\n';
 
     cout << "min key is " << fib.extractMinKey() << '\n';
+
+
+
 //    cout << "tree is \n";
 //    fib.printTree(fib.getMin());
 
