@@ -30,5 +30,31 @@ int main() {
     cout << fib.getMin() << '\n';
     cout << fib.getMinKey() << '\n';
 
+//    fib.printList(fib.getMin());
+
+    cout << fib.extractMinKey() << '\n';
+
+//    fib.printList(fib.getMin());
+
+    cout << fib.empty() << '\n';
+    cout << fib.getTotNodes() << '\n';
+    cout << fib.getMin() << '\n';
+    cout << fib.getMinKey() << '\n';
+
+    cout << fib.extractMinKey() << '\n';
+
+//    fib.printList(fib.getMin());
+
+    cout << fib.empty() << '\n';
+    cout << fib.getTotNodes() << '\n';
+    cout << fib.getMin() << '\n';
+    cout << fib.getMinKey() << '\n';
+
+    cout << fib.extractMinKey() << '\n';
+
+    cout << fib.empty() << '\n';
+    cout << fib.getTotNodes() << '\n';
+    cout << fib.getMin() << '\n';
+
     return 0;
 }
