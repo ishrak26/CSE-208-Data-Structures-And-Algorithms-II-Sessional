@@ -1,6 +1,5 @@
 #include <bits/stdc++.h>
 #include<unistd.h>
-#include "node.h"
 
 using namespace std;
 
@@ -243,6 +242,7 @@ class Fibonacci_heap {
                     }
                 }
             }
+            delete arr[i];
         }
         delete[] arr;
     }
@@ -284,6 +284,29 @@ class Fibonacci_heap {
         }
     }
 
+    void deallocateNode(Node *root, int len) {
+        // root is a node belonging to a circular doubly linked list
+        // list size is len
+
+        if (root == nullptr) {
+            assert(len == 0);
+            return;
+        }
+
+        for (int i = 0; i < len-1; i++) {
+            deallocateNode(root->getChild(), root->getDegree());
+            root->getLeft()->setRight(root->getRight());
+            root->getRight()->setLeft(root->getLeft());
+            Node *tmp = root;
+            root = root->getRight();
+            delete tmp;
+        }
+        // delete the last node of the linked list
+        assert(root != nullptr && root->getRight() == root && root->getLeft() == root);
+        deallocateNode(root->getChild(), root->getDegree());
+        delete root;
+    }
+
 public:
     Fibonacci_heap() {
         min = nullptr;
@@ -291,7 +314,15 @@ public:
     }
 
     ~Fibonacci_heap() {
+        // find the length of the root list
+        int cnt = 0;
+        Node *tmp = min;
+        do {
+            tmp = tmp->getRight();
+            cnt++;
+        } while (tmp != min);
 
+        deallocateNode(min, cnt);
     }
 
     int getTotNodes() {
@@ -388,10 +419,6 @@ public:
             min = x;
         }
     }
-
-    void deleteNode(int id) [
-        // todo
-    ]
 
     void printTree(Node *x) {
         if (x == nullptr) return;
