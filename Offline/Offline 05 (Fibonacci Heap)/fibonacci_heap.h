@@ -223,32 +223,35 @@ class Fibonacci_heap {
         min = nullptr;
         for (int i = 0; i <= deg; i++) {
             if (arr[i] != nullptr) {
-                Node *node = new Node(arr[i]);
-                int idx = arr[i]->getID();
-                node_ids[idx] = node;
+                Node *node = arr[i];
+
                 if (min == nullptr) {
                     // root list hasn't been created yet
-                    node->setParent(nullptr);
+//                    node->setParent(nullptr);
+                    assert(node->getParent() == nullptr);
                     node->setLeft(node);
                     node->setRight(node);
                     min = node;
                 }
                 else {
                     // insert new_node into the root list
-                    node->setParent(nullptr);
+//                    node->setParent(nullptr);
+                    assert(node->getParent() == nullptr);
                     insertNode(min, node);
                     if (node->getKey() < min->getKey()) {
                         min = node;
                     }
                 }
             }
-            delete arr[i];
         }
         delete[] arr;
     }
 
     void cut(Node *x, Node *y) {
-        assert(x->getParent() == y && y->getChild() == x);
+        assert(x->getParent() == y);
+        // x may not be a direct child of y
+        // instead, x can be a sibling of the direct child of y
+
         // remove x from the child list of y
         if (y->getDegree() == 1) {
             // x is the only child
@@ -259,9 +262,18 @@ class Fibonacci_heap {
             // x has siblings
             assert(y->getDegree() > 1);
             y->setDegree(y->getDegree() - 1);
-            y->setChild(x->getRight());
-            y->getChild()->setLeft(x->getLeft());
-            x->getLeft()->setRight(y->getChild());
+
+            if (x == y->getChild()) {
+                // x is the direct child of y
+                y->setChild(x->getRight());
+                y->getChild()->setLeft(x->getLeft());
+                x->getLeft()->setRight(y->getChild());
+            }
+            else {
+                // x is a sibling of the direct child of y
+                x->getLeft()->setRight(x->getRight());
+                x->getRight()->setLeft(x->getLeft());
+            }
         }
 
         // add x to root list
@@ -315,6 +327,7 @@ public:
 
     ~Fibonacci_heap() {
         // find the length of the root list
+        if (empty()) return;
         int cnt = 0;
         Node *tmp = min;
         do {
@@ -339,7 +352,11 @@ public:
     }
 
     bool empty() {
-        return min==nullptr;
+        if (tot_nodes == 0) {
+            assert(min == nullptr);
+            return true;
+        }
+        return false;
     }
 
     int insert(const E key) {
