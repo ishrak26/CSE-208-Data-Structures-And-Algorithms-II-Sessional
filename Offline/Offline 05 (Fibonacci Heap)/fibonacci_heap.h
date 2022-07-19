@@ -32,7 +32,7 @@ class Fibonacci_heap {
             id = -1;
         }
 
-        Node(Node *node) {
+        Node(Node *node) { // copy from a given node
             key = node->getKey();
             parent = node->getParent();
             child = node->getChild();
@@ -114,8 +114,8 @@ class Fibonacci_heap {
 
     Node *min;
     int tot_nodes;
-    vector<Node*> node_ids;
-    stack<int> freelist; // node id's currently free
+    vector<Node*> node_ids; // mapping of all the nodes to an array
+    stack<int> freelist; // node id's which are currently free
 
     // concatenate b to a
     void concatLists(Node *a, Node *b) {
@@ -128,7 +128,7 @@ class Fibonacci_heap {
         b->setLeft(tmp);
     }
 
-    // returns the right node of x
+    // returns the right node of x after removing x
     Node *removeNodeFromList(Node *x) {
         assert(x != nullptr);
         Node *ret = x->getRight();
@@ -141,6 +141,7 @@ class Fibonacci_heap {
         return ret;
     }
 
+    // calculate ceil(lgn)
     int calc_ceil_log2(int n) {
         int bits = sizeof(int) * 8;
         int i;
@@ -184,6 +185,7 @@ class Fibonacci_heap {
         }
     }
 
+    // comes from extract-min
     void consolidate() {
         int deg = calc_ceil_log2(tot_nodes);
         Node **arr = new Node*[deg+1];
@@ -247,6 +249,7 @@ class Fibonacci_heap {
         delete[] arr;
     }
 
+    // comes from decrease-key
     void cut(Node *x, Node *y) {
         assert(x->getParent() == y);
         // x may not be a direct child of y
@@ -282,6 +285,7 @@ class Fibonacci_heap {
         x->setMark(false);
     }
 
+    // comes from decrease-key
     void cascadingCut(Node *y) {
         assert(y != nullptr);
         Node *z = y->getParent();
@@ -296,6 +300,8 @@ class Fibonacci_heap {
         }
     }
 
+    // required for fixing memory leak
+    // comes from destructor
     void deallocateNode(Node *root, int len) {
         // root is a node belonging to a circular doubly linked list
         // list size is len
@@ -327,7 +333,7 @@ public:
 
     ~Fibonacci_heap() {
         // find the length of the root list
-        if (empty()) return;
+        if (empty()) return; // nothing to deallocate
         int cnt = 0;
         Node *tmp = min;
         do {
@@ -338,14 +344,16 @@ public:
         deallocateNode(min, cnt);
     }
 
-    int getTotNodes() {
+    // returns size of the current heap
+    int size() {
         return tot_nodes;
     }
 
-    Node *getMin() {
-        return min;
-    }
+//    Node *getMin() {
+//        return min;
+//    }
 
+    // returns the minimum node's key without removing the node itself
     E getMinKey() {
         assert(min != nullptr);
         return min->getKey();
@@ -359,6 +367,7 @@ public:
         return false;
     }
 
+    // returns the id to which the new node is mapped
     int insert(const E key) {
         Node *node = new Node(key);
 
@@ -389,6 +398,7 @@ public:
         return idx;
     }
 
+    // returns the min node after removing it from the heap
     E extractMinKey() {
         E ret = getMinKey();
 
@@ -420,6 +430,7 @@ public:
         return ret;
     }
 
+    // decreases the key of a given node
     void decreaseKey(int id, E key) {
         assert(id < node_ids.size());
         Node *x = node_ids[id];
@@ -437,23 +448,23 @@ public:
         }
     }
 
-    void printTree(Node *x) {
-        if (x == nullptr) return;
-        cerr << "root is " << x->getKey() << '\n';
-        cerr << "rootlist is ";
-        Node *tmp = x;
-        do {
-//            cerr << tmp->getKey() << ' ';
-            cerr << tmp->getKey() << ',' << tmp->getDegree() << ' ';
-            tmp = tmp->getRight();
-        } while (tmp != x);
-        cerr << "\n\n";
-
-        tmp = x;
-        do {
-            printTree(tmp->getChild());
-            tmp = tmp->getRight();
-        } while (tmp != x);
-    }
+//    void printTree(Node *x) {
+//        if (x == nullptr) return;
+//        cerr << "root is " << x->getKey() << '\n';
+//        cerr << "rootlist is ";
+//        Node *tmp = x;
+//        do {
+////            cerr << tmp->getKey() << ' ';
+//            cerr << tmp->getKey() << ',' << tmp->getDegree() << ' ';
+//            tmp = tmp->getRight();
+//        } while (tmp != x);
+//        cerr << "\n\n";
+//
+//        tmp = x;
+//        do {
+//            printTree(tmp->getChild());
+//            tmp = tmp->getRight();
+//        } while (tmp != x);
+//    }
 };
 

@@ -51,7 +51,7 @@ public:
                     path[v] = path[u] + 1;
                     pq.push({dis[v], v}); // O(logV)
                 }
-                else if (dis[u] + w == dis[v] && path[v] > path[u] + 1) {
+                else if (dis[u] + w == dis[v] && path[v] > path[u] + 1) { // optimize path length
                     path[v] = path[u] + 1;
                 }
             }
@@ -60,30 +60,30 @@ public:
         return dis[des]==INF ? make_pair(-1, -1) : make_pair(dis[des], path[des]);
     }
 
-    pair<int, int> dijkstra_fib_heap(int src, int des) {
+    pair<int, int> dijkstra_fib_heap(int src, int des) { // O(VlgV + E)
         Fibonacci_heap<pair<int, int> > fq; // (dis[v], v)
         vector<int> dis(n, INF); // O(V)
         vector<int> path(n, INF); // path length for each node, O(V)
-        vector<int> ids(n+1, -1);
+        vector<int> ids(n+1, -1); // node_ids for all insertions, O(V)
 
         dis[src] = 0;
         path[src] = 0;
 
-        for (int i = 0; i < n; i++) {
-            ids[i] = fq.insert({dis[i], i});
+        for (int i = 0; i < n; i++) { // O(V)
+            ids[i] = fq.insert({dis[i], i}); // O(1)
         }
 
-        while (!fq.empty()) {
-            pair<int, int> p = fq.extractMinKey();
+        while (!fq.empty()) { // O(VlgV + E)
+            pair<int, int> p = fq.extractMinKey(); // O(lgV) amortized
             int u = p.second;
             for (int i = 0, sz = adj[u].size(); i < sz; i++) {
                 pair<int, int> v = adj[u][i]; // (to, weight)
                 if (dis[u] + v.second < dis[v.first]) {
                     dis[v.first] = dis[u] + v.second;
                     path[v.first] = path[u] + 1;
-                    fq.decreaseKey(ids[v.first], {dis[v.first], v.first});
+                    fq.decreaseKey(ids[v.first], {dis[v.first], v.first}); // O(1) amortized
                 }
-                else if (dis[u] + v.second == dis[v.first] && path[v.first] > path[u] + 1) {
+                else if (dis[u] + v.second == dis[v.first] && path[v.first] > path[u] + 1) { // optimize path length
                     path[v.first] = path[u] + 1;
                 }
             }
