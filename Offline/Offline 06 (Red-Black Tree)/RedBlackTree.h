@@ -52,27 +52,27 @@ class RedBlackTree {
         }
 
         // getters
-        void getKey() {
+        E getKey() {
             return this->key;
         }
 
-        void getParent() {
+        Node* getParent() {
             return this->parent;
         }
 
-        void getLeft() {
+        Node* getLeft() {
             return this->left;
         }
 
-        void getRight() {
+        Node* getRight() {
             return this->right;
         }
 
-        void getColor() {
+        int getColor() {
             return this->color;
         }
 
-        void getSubtree_sz() {
+        int getSubtree_sz() {
             return this->subtree_sz;
         }
     };
@@ -186,6 +186,86 @@ class RedBlackTree {
         return node->getSubtree_sz() + find_less_help(node->getRight(), key);
     }
 
+    void fixup_insert(Node *z) {
+        assert(z != nullptr && z->getParent() != nullptr);
+        while (z->getParent() != nullptr && z->getParent()->getColor() == 1) {
+            assert(z->getParent()->getParent() != nullptr);
+            // if z's parent is the root, it would be black, not red
+            // so z's parent is not the root
+            // so z's grandparent must exist
+
+            if (z->getParent() == z->getParent()->getParent()->getLeft()) {
+                // z's parent is a left child
+                Node *y = z->getParent()->getParent()->getRight(); // uncle of z
+                if (y != nullptr && y->getColor() == 1) {
+                    // uncle is red
+                    z->getParent()->setColor(0);
+                    y->setColor(0);
+                    z->getParent()->getParent()->setColor(1);
+                    z = z->getParent()->getParent();
+                }
+                else {
+                    // uncle is black
+                    // null implies sentinel i.e. black node
+                    if (z == z->getParent()->getRight()) {
+                        // z is the right child
+                        z = z->getParent();
+                        left_rotate(z);
+                    }
+                    z->getParent()->setColor(0);
+                    z->getParent()->getParent()->setColor(1);
+                    right_rotate(z->getParent()->getParent());
+                }
+            }
+            else {
+                // z's parent is a right child
+                Node *y = z->getParent()->getParent()->getLeft(); // uncle of z
+                if (y != nullptr && y->getColor() == 1) {
+                    // uncle is red
+                    z->getParent()->setColor(0);
+                    y->setColor(0);
+                    z->getParent()->getParent()->setColor(1);
+                    z = z->getParent()->getParent();
+                }
+                else {
+                    // uncle is black
+                    // null implies sentinel i.e. black node
+                    if (z == z->getParent()->getLeft()) {
+                        // z is the left child
+                        z = z->getParent();
+                        right_rotate(z);
+                    }
+                    z->getParent()->setColor(0);
+                    z->getParent()->getParent()->setColor(1);
+                    left_rotate(z->getParent()->getParent());
+                }
+            }
+        }
+        root->setColor(0);
+    }
+
+    Node* find_predecessor(Node *node) {
+        assert(node != nullptr && node->getLeft() != nullptr);
+        Node *y = node->getLeft();
+        Node *x = y->getRight();
+        while (x != nullptr) {
+            y = x;
+            x = x->getRight();
+        }
+        return y;
+    }
+
+    Node* find_successor(Node *node) {
+        assert(node != nullptr && node->getRight() != nullptr);
+        Node *y = node->getRight();
+        Node *x = y->getLeft();
+        while (x != nullptr) {
+            y = x;
+            x = x->getLeft();
+        }
+        return y;
+    }
+
     Node *root;
 
 public:
@@ -214,6 +294,44 @@ public:
 
     int find_less_nodes(E key) {
         return find_less_help(root, key);
+    }
+
+    void insert(E key) {
+        Node *z = new Node(key);
+        Node *y = nullptr;
+        Node *x = root;
+        while (x != nullptr) {
+            y = x;
+            if (key < x->getKey()) {
+                x = x->getLeft();
+            }
+            else {
+                x = x->getRight();
+            }
+        }
+
+        // x is now the position at which z will be inserted
+        // y will be the parent
+        z->setParent(y);
+        if (y == nullptr) {
+            root = z;
+        }
+        else if (key < y->getKey()) {
+            // z will be left of y
+            y->setLeft(z);
+        }
+        else {
+            // z will be right of y
+            y->setRight(z);
+        }
+
+        if (root == z) {
+            z->setColor(0); // root color is black
+            // z's subtree_sz is already 1
+            return;
+        }
+
+        fixup_insert(z);
     }
 
 };
