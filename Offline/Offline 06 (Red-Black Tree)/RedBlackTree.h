@@ -81,6 +81,14 @@ class RedBlackTree {
         assert(x != nullptr);
         Node *y = x->getRight();
         assert(y != nullptr);
+
+        int alpha = 0, beta = 0, gamma = 0;
+        if (x->getLeft() != nullptr) alpha = x->getLeft()->getSubtree_sz();
+        if (y->getLeft() != nullptr) beta = y->getLeft()->getSubtree_sz();
+        if (y->getRight() != nullptr) gamma = y->getRight()->getSubtree_sz();
+        assert(x->getSubtree_sz() == alpha + y->getSubtree_sz() + 1);
+        assert(y->getSubtree_sz() == beta + gamma + 1);
+
         x->setRight(y->getLeft());
 
         // y's left will now be x's right
@@ -106,12 +114,24 @@ class RedBlackTree {
         // x will now be the left child of y
         y->setLeft(x);
         x->setParent(y);
+
+        // handle subtree sizes
+        x->setSubtree_sz(alpha + beta + 1);
+        y->setSubtree_sz(x->getSubtree_sz() + gamma + 1);
     }
 
     void right_rotate(Node *y) {
         assert(y != nullptr);
         Node *x = y->getLeft();
         assert(x != nullptr);
+
+        int alpha = 0, beta = 0, gamma = 0;
+        if (x->getLeft() != nullptr) alpha = x->getLeft()->getSubtree_sz();
+        if (x->getRight() != nullptr) beta = x->getRight()->getSubtree_sz();
+        if (y->getRight() != nullptr) gamma = y->getRight()->getSubtree_sz();
+
+        assert(x->getSubtree_sz() == alpha + beta + 1);
+        assert(y->getSubtree_sz() == x->getSubtree_sz() + gamma + 1);
 
         // x's right will now be y's left
         y->setLeft(x->getRight());
@@ -137,6 +157,10 @@ class RedBlackTree {
         // y will now be the right child of x
         x->setRight(y);
         y->setParent(x);
+
+        // handle subtree_sizes
+        y->setSubtree_sz(beta + gamma + 1);
+        x->setSubtree_sz(alpha + y->getSubtree_sz() + 1);
     }
 
     // called by the destructor
