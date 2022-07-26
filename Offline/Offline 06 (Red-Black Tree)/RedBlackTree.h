@@ -86,7 +86,7 @@ class RedBlackTree {
     };
 
     void left_rotate(Node *x) {
-        assert(!x->isLeaf()));
+        assert(!x->isLeaf());
         Node *y = x->getRight();
         assert(!y->isLeaf());
 
@@ -301,6 +301,23 @@ class RedBlackTree {
         return y;
     }
 
+    void in_order_traverse(Node *node) { // traverse the subtree rooted at node in-order
+        if (node->isLeaf()) return;
+        in_order_traverse(node->getLeft());
+        cerr << node->getKey() << " ";
+        in_order_traverse(node->getRight());
+    }
+
+    void print_treeHelp(Node *node) { // prints the subtree rooted at node
+        if (node->isLeaf()) return;
+        cerr << "{" << node->getKey() << ", " << node->getColor() << ", " << node->getSubtree_sz() << "}";
+        cerr << '(';
+        print_treeHelp(node->getLeft());
+        cerr << ")(";
+        print_treeHelp(node->getRight());
+        cerr << ')';
+    }
+
     Node *root;
 
 public:
@@ -333,6 +350,14 @@ public:
 
     void insert(E key) {
         Node *z = new Node(key);
+
+        if (root == nullptr) {
+            // tree is currently empty
+            z->setColor(0);
+            root = z;
+            return;
+        }
+
         Node *y = nullptr;
         Node *x = root;
         while (!x->isLeaf()) {
@@ -373,13 +398,22 @@ public:
             t = t->getParent();
         }
 
-        if (root == z) {
-            z->setColor(0); // root color is black
-            // z's subtree_sz is already 1
-            return;
-        }
-
+//        cerr << "ok before fixup\n";
         fixup_insert(z);
+    }
+
+    void print_in_order() {
+        cerr << "In-order Traversal:\n";
+        if (empty()) return;
+        in_order_traverse(root);
+        cerr << '\n';
+    }
+
+    void print_tree() {
+        cerr << "Tree Structure:\n";
+        if (empty()) return;
+        print_treeHelp(root);
+        cerr << '\n';
     }
 
 };
