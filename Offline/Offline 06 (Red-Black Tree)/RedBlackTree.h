@@ -318,6 +318,103 @@ class RedBlackTree {
         cerr << ')';
     }
 
+    void transplant(Node *u, Node *v) {
+        assert(u != nullptr && v != nullptr);
+        if (u->getParent() == nullptr) {
+            // u is the root
+            root = v;
+        }
+        else if (u == u->getParent()->getLeft()) {
+            // u is a left child
+            u->getParent()->setLeft(v);
+        }
+        else {
+            // u is a right child
+            u->getParent()->setRight(v);
+        }
+        v->setParent(u->getParent());
+    }
+
+    void fixup_delete(Node *x) {
+        while (x != root && x->getColor() == 0) {
+            assert(x->getParent() != nullptr); // since x != root
+            Node *w; // sibling of x
+            if (x == x->getParent()->getLeft()) {
+                // x is the left child
+                w = x->getParent()->getRight();
+                assert(w != nullptr);
+                if (w->getColor() == 1) {
+                    // case 1
+                    // sibling of x is red
+                    w->setColor(0);
+                    x->getParent()->setColor(1);
+                    left_rotate(x->getParent());
+                    w = x->getParent()->getRight();
+                }
+                // w is now black, no matter the above if block has been executed
+                assert(!w->isLeaf());
+                if (w->getLeft()->getColor() == 0 && w->getRight()->getColor() == 0) {
+                    // case 2
+                    w->setColor(1);
+                    x = x->getParent();
+                }
+                else {
+                    if (w->getRight()->getColor() == 0) {
+                        // case 3
+                        // left child of w is red
+                        w->getLeft()->setColor(0);
+                        w->setColor(1);
+                        right_rotate(w);
+                        w = x->getParent()->getRight();
+                    }
+                    // case 4
+                    w->setColor(x->getParent()->getColor());
+                    x->getParent()->setColor(0);
+                    w->getRight()->setColor(0);
+                    left_rotate(x->getParent());
+                    x = root;
+                }
+            }
+            else {
+                // x is the right child
+                w = x->getParent()->getLeft();
+                assert(w != nullptr);
+                if (w->getColor() == 1) {
+                    // case 1
+                    // sibling of x is red
+                    w->setColor(0);
+                    x->getParent()->setColor(1);
+                    right_rotate(x->getParent());
+                    w = x->getParent()->getLeft();
+                }
+                // w is now black, no matter the above if block has been executed
+                assert(!w->isLeaf());
+                if (w->getLeft()->getColor() == 0 && w->getRight()->getColor() == 0) {
+                    // case 2
+                    w->setColor(1);
+                    x = x->getParent();
+                }
+                else {
+                    if (w->getLeft()->getColor() == 0) {
+                        // case 3
+                        // right child of w is red
+                        w->getRight()->setColor(0);
+                        w->setColor(1);
+                        left_rotate(w);
+                        w = x->getParent()->getLeft();
+                    }
+                    // case 4
+                    w->setColor(x->getParent()->getColor());
+                    x->getParent()->setColor(0);
+                    w->getLeft()->setColor(0);
+                    right_rotate(x->getParent());
+                    x = root;
+                }
+            }
+        }
+        x->setColor(0);
+    }
+
     Node *root;
 
 public:
@@ -398,8 +495,81 @@ public:
             t = t->getParent();
         }
 
-//        cerr << "ok before fixup\n";
         fixup_insert(z);
+    }
+
+    void deleteNode(E key) {
+        Node *z = find_node_by_key(key, root);
+        if (z == nullptr) {
+            // nothing to delete
+            return;
+        }
+        assert(!z->isLeaf());
+        // need to delete z now
+
+        if (z == root && size() == 1) {
+            delete z;
+            root = nullptr;
+            return;
+        }
+
+        Node *y = z;
+        int y_original_color = y->getColor();
+        Node *x;
+        if (z->getLeft()->isLeaf()) {
+            x = z->getRight();
+            transplant(z, z->getRight());
+        }
+        else if (z->getRight()->isLeaf()) {
+            x = z->getLeft();
+            transplant(z, z->getLeft());
+        }
+        else {
+            y = find_successor(z);
+            assert(y != nullptr && !y->isLeaf());
+            y_original_color = y->getColor();
+            x = y->getRight();
+            if (y->getParent() == z) {
+                x->setParent(y);
+            }
+            else {
+                transplant(y, y->getRight());
+                y->setRight(z->getRight());
+                y->getRight()->setParent(y);
+            }
+            transplant(z, y);
+            y->setLeft(z->getLeft());
+            y->getLeft()->setParent(y);
+            y->setColor(z->getColor());
+        }
+
+        // deallocate z
+        if (z->getLeft()->isLeaf() && z->getLeft()->getParent() == z) delete z->getLeft();
+        if (z->getRight()->isLeaf() && z->getRight()->getParent() == z) delete z->getRight();
+        delete z;
+
+        // update subtree sizes
+        Node *t = x;
+        if (t->isLeaf()) {
+            t->setSubtree_sz(0);
+            t = t->getParent();
+        }
+        while (t != nullptr) {
+            t->setSubtree_sz(t->getLeft()->getSubtree_sz() + t->getRight()->getSubtree_sz() + 1);
+            t = t->getParent();
+        }
+
+//        t = y;
+//        assert(!t->isLeaf());
+//        while (t != nullptr) {
+//            t->setSubtree_sz(t->getLeft()->getSubtree_sz() + t->getRight()->getSubtree_sz() + 1);
+//            t = t->getParent();
+//        }
+
+        // fixup
+        if (y_original_color == 0) {
+            fixup_delete(x);
+        }
     }
 
     void print_in_order() {
