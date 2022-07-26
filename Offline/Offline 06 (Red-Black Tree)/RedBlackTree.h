@@ -170,10 +170,18 @@ class RedBlackTree {
 
     // called by the destructor
     void deallocate_nodes(Node *node) {
-        if (node == nullptr) return;
+        if (node->isLeaf()) return; // will handle sentinels separately
         deallocate_nodes(node->getLeft());
         deallocate_nodes(node->getRight());
         delete node;
+    }
+
+    // called by the destructor
+    void deallocate_sentinels() {
+        while (!sentinels.empty()) {
+            delete sentinels.top();
+            sentinels.pop();
+        }
     }
 
     // returns the parent of the node where this key can be inserted
@@ -416,6 +424,7 @@ class RedBlackTree {
     }
 
     Node *root;
+    stack<Node*> sentinels;
 
 public:
     RedBlackTree() {
@@ -423,8 +432,10 @@ public:
     }
 
     ~RedBlackTree() {
-        if (empty()) return;
-        deallocate_nodes(root);
+        if (!empty()) {
+            deallocate_nodes(root);
+        }
+        deallocate_sentinels();
     }
 
     int size() {
@@ -447,6 +458,8 @@ public:
 
     void insert(E key) {
         Node *z = new Node(key);
+        sentinels.push(z->getLeft());
+        sentinels.push(z->getRight());
 
         if (root == nullptr) {
             // tree is currently empty
@@ -544,8 +557,8 @@ public:
         }
 
         // deallocate z
-        if (z->getLeft()->isLeaf() && z->getLeft()->getParent() == z) delete z->getLeft();
-        if (z->getRight()->isLeaf() && z->getRight()->getParent() == z) delete z->getRight();
+//        if (z->getLeft()->isLeaf() && z->getLeft()->getParent() == z) delete z->getLeft();
+//        if (z->getRight()->isLeaf() && z->getRight()->getParent() == z) delete z->getRight();
         delete z;
 
         // update subtree sizes
