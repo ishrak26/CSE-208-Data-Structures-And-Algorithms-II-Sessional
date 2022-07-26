@@ -200,7 +200,7 @@ class RedBlackTree {
     // returns the node having its key exactly equal to key
     // else returns null
     Node *find_node_by_key(E key, Node *node) {
-        if (node->isLeaf()) {
+        if (node == nullptr || node->isLeaf()) {
             return nullptr;
         }
         if (key == node->getKey()) {
@@ -434,8 +434,10 @@ public:
     ~RedBlackTree() {
         if (!empty()) {
             deallocate_nodes(root);
+            cerr << "nodes destroyed ok\n";
         }
         deallocate_sentinels();
+        cerr << "sentinels destroyed ok\n";
     }
 
     int size() {
