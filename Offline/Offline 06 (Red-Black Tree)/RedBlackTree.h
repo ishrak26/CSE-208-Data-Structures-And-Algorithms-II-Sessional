@@ -492,14 +492,14 @@ public:
             // z will be left of y
 
             assert(y->getLeft()->isLeaf());
-            delete y->getLeft();
+//            delete y->getLeft();
             y->setLeft(z);
         }
         else {
             // z will be right of y
 
             assert(y->getRight()->isLeaf());
-            delete y->getRight();
+//            delete y->getRight();
             y->setRight(z);
         }
 
