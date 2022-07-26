@@ -238,6 +238,7 @@ class RedBlackTree {
                 // z's parent is a left child
                 Node *y = z->getParent()->getParent()->getRight(); // uncle of z
                 if (y != nullptr && y->getColor() == 1) {
+                    // case 1
                     // uncle is red
                     z->getParent()->setColor(0);
                     y->setColor(0);
@@ -247,10 +248,12 @@ class RedBlackTree {
                 else {
                     // uncle is black
                     if (z == z->getParent()->getRight()) {
+                        // case 2
                         // z is the right child
                         z = z->getParent();
                         left_rotate(z);
                     }
+                    // case 3
                     z->getParent()->setColor(0);
                     z->getParent()->getParent()->setColor(1);
                     right_rotate(z->getParent()->getParent());
@@ -260,6 +263,7 @@ class RedBlackTree {
                 // z's parent is a right child
                 Node *y = z->getParent()->getParent()->getLeft(); // uncle of z
                 if (y != nullptr && y->getColor() == 1) {
+                    // case 1
                     // uncle is red
                     z->getParent()->setColor(0);
                     y->setColor(0);
@@ -270,10 +274,12 @@ class RedBlackTree {
                     // uncle is black
                     // null implies sentinel i.e. black node
                     if (z == z->getParent()->getLeft()) {
+                        // case 2
                         // z is the left child
                         z = z->getParent();
                         right_rotate(z);
                     }
+                    // case 3
                     z->getParent()->setColor(0);
                     z->getParent()->getParent()->setColor(1);
                     left_rotate(z->getParent()->getParent());
@@ -326,6 +332,7 @@ class RedBlackTree {
         cerr << ')';
     }
 
+    // called by deleteNode
     void transplant(Node *u, Node *v) {
         assert(u != nullptr && v != nullptr);
         if (u->getParent() == nullptr) {
@@ -343,6 +350,7 @@ class RedBlackTree {
         v->setParent(u->getParent());
     }
 
+    // called by deleteNode
     void fixup_delete(Node *x) {
         while (x != root && x->getColor() == 0) {
             assert(x->getParent() != nullptr); // since x != root
@@ -424,7 +432,7 @@ class RedBlackTree {
     }
 
     Node *root;
-    stack<Node*> sentinels;
+    stack<Node*> sentinels; // destroy all the dummy nodes separately
 
 public:
     RedBlackTree() {
@@ -434,10 +442,10 @@ public:
     ~RedBlackTree() {
         if (!empty()) {
             deallocate_nodes(root);
-            cerr << "nodes destroyed ok\n";
+//            cerr << "nodes destroyed ok\n";
         }
         deallocate_sentinels();
-        cerr << "sentinels destroyed ok\n";
+//        cerr << "sentinels destroyed ok\n";
     }
 
     int size() {
@@ -454,6 +462,7 @@ public:
         return !(node == nullptr);
     }
 
+    // number of nodes having their key strictly less than given key
     int find_less_nodes(E key) {
         return find_less_help(root, key);
     }
@@ -587,18 +596,18 @@ public:
         }
     }
 
-    void print_in_order() {
-        cerr << "In-order Traversal:\n";
-        if (empty()) return;
-        in_order_traverse(root);
-        cerr << '\n';
-    }
-
-    void print_tree() {
-        cerr << "Tree Structure:\n";
-        if (empty()) return;
-        print_treeHelp(root);
-        cerr << '\n';
-    }
+//    void print_in_order() {
+//        cerr << "In-order Traversal:\n";
+//        if (empty()) return;
+//        in_order_traverse(root);
+//        cerr << '\n';
+//    }
+//
+//    void print_tree() {
+//        cerr << "Tree Structure:\n";
+//        if (empty()) return;
+//        print_treeHelp(root);
+//        cerr << '\n';
+//    }
 
 };
