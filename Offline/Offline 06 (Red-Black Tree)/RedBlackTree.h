@@ -15,13 +15,17 @@ class RedBlackTree {
     public:
         Node() {
             parent = left = right = nullptr;
-            color = -1;
+            color = 0; // color of sentinel is black
             subtree_sz = 0;
         }
 
         Node(E key) {
             this->key = key;
-            parent = left = right = nullptr;
+            parent = nullptr;
+            left = new Node; // sentinel
+            right = new Node; // sentinel
+            left->setParent(this);
+            right->setParent(this);
             color = 1; // new node will always be colored red initially
             subtree_sz = 1;
         }
@@ -75,29 +79,31 @@ class RedBlackTree {
         int getSubtree_sz() {
             return this->subtree_sz;
         }
+
+        bool isLeaf() {
+            return (left==nullptr && right==nullptr);
+        }
     };
 
     void left_rotate(Node *x) {
-        assert(x != nullptr);
+        assert(!x->isLeaf()));
         Node *y = x->getRight();
-        assert(y != nullptr);
+        assert(!y->isLeaf());
 
         int alpha = 0, beta = 0, gamma = 0;
-        if (x->getLeft() != nullptr) alpha = x->getLeft()->getSubtree_sz();
-        if (y->getLeft() != nullptr) beta = y->getLeft()->getSubtree_sz();
-        if (y->getRight() != nullptr) gamma = y->getRight()->getSubtree_sz();
+        alpha = x->getLeft()->getSubtree_sz();
+        beta = y->getLeft()->getSubtree_sz();
+        gamma = y->getRight()->getSubtree_sz();
         assert(x->getSubtree_sz() == alpha + y->getSubtree_sz() + 1);
         assert(y->getSubtree_sz() == beta + gamma + 1);
 
+        // y's left will now be x's right
         x->setRight(y->getLeft());
 
-        // y's left will now be x's right
-        if (x->getRight() != nullptr) {
-            x->getRight()->setParent(x);
-        }
-        y->setParent(x->getParent());
+        x->getRight()->setParent(x);
 
         // x's parent will now be y's parent
+        y->setParent(x->getParent());
         if (x->getParent() == nullptr) {
             // x was the root
             root = y;
@@ -121,23 +127,22 @@ class RedBlackTree {
     }
 
     void right_rotate(Node *y) {
-        assert(y != nullptr);
+        assert(!y->isLeaf());
         Node *x = y->getLeft();
-        assert(x != nullptr);
+        assert(!x->isLeaf());
 
         int alpha = 0, beta = 0, gamma = 0;
-        if (x->getLeft() != nullptr) alpha = x->getLeft()->getSubtree_sz();
-        if (x->getRight() != nullptr) beta = x->getRight()->getSubtree_sz();
-        if (y->getRight() != nullptr) gamma = y->getRight()->getSubtree_sz();
+        alpha = x->getLeft()->getSubtree_sz();
+        beta = x->getRight()->getSubtree_sz();
+        gamma = y->getRight()->getSubtree_sz();
 
         assert(x->getSubtree_sz() == alpha + beta + 1);
         assert(y->getSubtree_sz() == x->getSubtree_sz() + gamma + 1);
 
         // x's right will now be y's left
         y->setLeft(x->getRight());
-        if (y->getLeft() != nullptr) {
-            y->getLeft()->setParent(y);
-        }
+
+        y->getLeft()->setParent(y);
 
         // y's parent will now be x's parent
         x->setParent(y->getParent());
@@ -173,7 +178,7 @@ class RedBlackTree {
 
     // returns the parent of the node where this key can be inserted
     Node *find_node_position(E key, Node *node, Node *parent) {
-         if (node == nullptr) {
+         if (node->isLeaf()) {
             return parent;
          }
          if (key < node->getKey()) {
@@ -187,8 +192,8 @@ class RedBlackTree {
     // returns the node having its key exactly equal to key
     // else returns null
     Node *find_node_by_key(E key, Node *node) {
-        if (node == nullptr) {
-            return node;
+        if (node->isLeaf()) {
+            return nullptr;
         }
         if (key == node->getKey()) {
             return node;
@@ -202,17 +207,20 @@ class RedBlackTree {
     }
 
     int find_less_help(Node *node, E key) {
-        if (node == nullptr) return 0;
+        if (node->isLeaf()) return 0;
         if (node->getKey() >= key) {
             // all nodes less than key reside to the left of this node
             return find_less_help(node->getLeft(), key);
         }
-        return node->getSubtree_sz() + find_less_help(node->getRight(), key);
+        return 1 + node->getLeft()->getSubtree_sz() + find_less_help(node->getRight(), key);
+//        return node->getSubtree_sz() + find_less_help(node->getRight(), key);
     }
 
     void fixup_insert(Node *z) {
         assert(z != nullptr && z->getParent() != nullptr);
         while (z->getParent() != nullptr && z->getParent()->getColor() == 1) {
+            // z is not a leaf, since z is a red node
+
             assert(z->getParent()->getParent() != nullptr);
             // if z's parent is the root, it would be black, not red
             // so z's parent is not the root
@@ -230,7 +238,6 @@ class RedBlackTree {
                 }
                 else {
                     // uncle is black
-                    // null implies sentinel i.e. black node
                     if (z == z->getParent()->getRight()) {
                         // z is the right child
                         z = z->getParent();
@@ -269,10 +276,12 @@ class RedBlackTree {
     }
 
     Node* find_predecessor(Node *node) {
-        assert(node != nullptr && node->getLeft() != nullptr);
+        assert(node != nullptr && !node->isLeaf() && !node->getLeft()->isLeaf());
+        // this function is called only when left subtree of node is not empty
+
         Node *y = node->getLeft();
         Node *x = y->getRight();
-        while (x != nullptr) {
+        while (!x->isLeaf()) {
             y = x;
             x = x->getRight();
         }
@@ -280,10 +289,12 @@ class RedBlackTree {
     }
 
     Node* find_successor(Node *node) {
-        assert(node != nullptr && node->getRight() != nullptr);
+        assert(node != nullptr && !node->isLeaf() && !node->getRight()->isLeaf());
+        // this function is called only when right subtree of node is not empty
+
         Node *y = node->getRight();
         Node *x = y->getLeft();
-        while (x != nullptr) {
+        while (!x->isLeaf()) {
             y = x;
             x = x->getLeft();
         }
@@ -308,7 +319,7 @@ public:
     }
 
     bool empty() {
-        return root == null;
+        return root==nullptr;
     }
 
     bool search(E key) {
@@ -324,7 +335,7 @@ public:
         Node *z = new Node(key);
         Node *y = nullptr;
         Node *x = root;
-        while (x != nullptr) {
+        while (!x->isLeaf()) {
             y = x;
             if (key < x->getKey()) {
                 x = x->getLeft();
@@ -342,11 +353,24 @@ public:
         }
         else if (key < y->getKey()) {
             // z will be left of y
+
+            assert(y->getLeft()->isLeaf());
+            delete y->getLeft();
             y->setLeft(z);
         }
         else {
             // z will be right of y
+
+            assert(y->getRight()->isLeaf());
+            delete y->getRight();
             y->setRight(z);
+        }
+
+        // update the subtree size of all ancestors
+        Node *t = y;
+        while (t != nullptr) {
+            t->setSubtree_sz(t->getLeft()->getSubtree_sz() + t->getRight()->getSubtree_sz() + 1);
+            t = t->getParent();
         }
 
         if (root == z) {
