@@ -59,7 +59,7 @@ class SeparateChaining {
         return make_pair(h, found);
     }
 
-    hashTableNode *deleteHelp(string key) {
+    pair<hashTableNode*, int> deleteHelp(string key) {
         int h = hash_func1(key, m);
         assert(h >= 0 && h < m);
         hashTableNode *tmp = hashTable[h];
@@ -68,11 +68,11 @@ class SeparateChaining {
             string str = tmp->node->getKey();
             if (key.compare(str) == 0) {
                 // matched
-                return tmp;
+                return make_pair(tmp, h);
             }
             tmp = tmp->next;
         }
-        return nullptr;
+        return make_pair(nullptr, h);
     }
 
 public:
@@ -109,7 +109,9 @@ public:
     }
 
     bool search(string key) {
+//        cerr << "before searchhelp\n";
         pair<int, bool> match = searchHelp(key);
+//        cerr << "after searchhelp\n";
         if (match.second == true) {
             // this string exists
             return true;
@@ -119,13 +121,18 @@ public:
 
     // returns true upon successful deletion
     bool deleteKey(string key) {
-        hashTableNode *x = deleteHelp(key);
+        pair<hashTableNode*, int> ret = deleteHelp(key);
+        hashTableNode *x = ret.first;
         if (x == nullptr) {
             // nothing to delete
             return false;
         }
         if (x->prev != nullptr) x->prev->next = x->next;
         if (x->next != nullptr) x->next->prev = x->prev;
+        if (x->prev == nullptr && x->next == nullptr) {
+            int h = ret.second;
+            hashTable[h] = nullptr;
+        }
         delete x;
         return true;
     }

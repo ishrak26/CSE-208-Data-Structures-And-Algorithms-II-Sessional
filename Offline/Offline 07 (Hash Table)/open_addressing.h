@@ -60,7 +60,7 @@ public:
 
     // returns false if the value already existed in the hash table
     bool insert(string key, int val) {
-        if (search(key)) {
+        if (search(key).first) {
             // key already exists in the table
             // no need to insert again
             return false;
@@ -79,23 +79,26 @@ public:
         assert(false);
     }
 
-    bool search(string key) {
+    // return the number of probes
+    pair<bool, int> search(string key) {
         for (int i = 0; i < m; i++) {
             int j = hash_func(key, i);
+            if (deleted[j]) continue;
             if (hashTable[j] == nullptr) {
-                return false;
+                return make_pair(false, i+1);
             }
             if (key.compare(hashTable[j]->getKey()) == 0) {
-                return true;
+                return make_pair(true, i+1);
             }
         }
-        return false;
+        return make_pair(false, m);
     }
 
     // returns true upon successful deletion
     bool deleteKey(string key) {
         for (int i = 0; i < m; i++) {
             int j = hash_func(key, i);
+            if (deleted[j]) continue;
             if (hashTable[j] == nullptr) {
                 // key doesn't exist
                 return false;
