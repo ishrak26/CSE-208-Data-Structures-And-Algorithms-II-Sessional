@@ -20,10 +20,17 @@ string generate_word() {
     return ret;
 }
 
+// generate a list of unique words
 void generate_all_words() {
-    for (int i = 0; i < WORD_NO; i++) {
+    map<string, bool> m;
+    for (int i = 0; i < WORD_NO; ) {
         string word = generate_word();
-        words.push_back(word);
+        if (m[word] == false) {
+            words.push_back(word);
+            m[word] = true;
+            i++;
+        }
+
 //        cerr << word << '\n';
     }
 }

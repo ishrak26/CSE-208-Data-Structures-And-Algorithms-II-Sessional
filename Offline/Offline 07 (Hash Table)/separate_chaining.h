@@ -12,7 +12,8 @@ class SeparateChaining {
         hashTableNode *next;
 
         hashTableNode() {
-            node = prev = next = nullptr;
+            node = nullptr;
+            prev = next = nullptr;
         }
 
         hashTableNode(string key, int val, hashTableNode *prev, hashTableNode *next) {
@@ -100,10 +101,10 @@ public:
         int idx = match.first;
         // insert at idx
         hashTableNode *prev = nullptr;
-        hashTableNode *next = hashTable[h]==nullptr ? nullptr : hashTable[h];
+        hashTableNode *next = hashTable[idx]==nullptr ? nullptr : hashTable[idx];
         hashTableNode *x = new hashTableNode(key, val, prev, next);
-        hashTable[h].prev = x;
-        hashTable[h] = x;
+        if (hashTable[idx] != nullptr) hashTable[idx]->prev = x;
+        hashTable[idx] = x;
         return true;
     }
 
@@ -117,14 +118,14 @@ public:
     }
 
     // returns true upon successful deletion
-    bool delete(string key) {
+    bool deleteKey(string key) {
         hashTableNode *x = deleteHelp(key);
-        if (key == nullptr) {
+        if (x == nullptr) {
             // nothing to delete
             return false;
         }
-        if (x.prev != nullptr) x.prev.next = x.next;
-        if (x.next != nullptr) x.next.prev = x.prev;
+        if (x->prev != nullptr) x->prev->next = x->next;
+        if (x->next != nullptr) x->next->prev = x->prev;
         delete x;
         return true;
     }

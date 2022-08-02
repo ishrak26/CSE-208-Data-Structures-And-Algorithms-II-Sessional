@@ -2,6 +2,8 @@
 
 using namespace std;
 
+#pragma once
+
 class Node {
     string key;
     int val;
@@ -28,7 +30,7 @@ public:
         return key;
     }
 
-    string getVal() {
+    int getVal() {
         return val;
     }
 };

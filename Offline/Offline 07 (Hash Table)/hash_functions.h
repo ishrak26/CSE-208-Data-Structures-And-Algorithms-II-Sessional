@@ -4,6 +4,8 @@ using namespace std;
 
 #define ll long long
 
+#pragma once
+
 // polynomial rolling function
 int hash_func1(string &s, ll m) {
     const ll p = 31; // for lowercase letters
@@ -26,5 +28,6 @@ int hash_func2(string &s, int m) {
         hash_val += s[i];
         hash_val %= m;
     }
+    if (hash_val == 0) hash_val = m-1;
     return hash_val;
 }
