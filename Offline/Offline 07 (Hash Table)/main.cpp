@@ -8,6 +8,30 @@ using namespace std;
 
 #define ld long double
 
+struct Report {
+    char type;
+    ld alpha;
+    ld time_before_del;
+    ld time_after_del;
+    ld probe_before_del;
+    ld probe_after_del;
+
+    Report() {
+
+    }
+
+    Report(char type, ld alpha, ld time_before_del, ld time_after_del, ld probe_before_del=-1, ld probe_after_del=-1) {
+        this->type = type;
+        this->alpha = alpha;
+        this->time_before_del = time_before_del;
+        this->time_after_del = time_after_del;
+        this->probe_before_del = probe_before_del;
+        this->probe_after_del = probe_after_del;
+    }
+};
+
+vector<Report> reports;
+
 int m;
 
 void test_hash_functions() {
@@ -121,6 +145,8 @@ void generate_report(ld alpha) {
     cerr << avg_probe_lp << '\n';
     cerr << avg_probe_qp << '\n';
     cerr << avg_probe_dh << '\n';
+
+
 
     // delete
     random_shuffle(inserted_idx.begin(), inserted_idx.end());
@@ -246,6 +272,11 @@ void generate_report(ld alpha) {
     cerr << avg_probe_lp_del << '\n';
     cerr << avg_probe_qp_del << '\n';
     cerr << avg_probe_dh_del << '\n';
+
+    reports.push_back(Report('S', alpha, avg_time_sc, avg_time_sc_del));
+    reports.push_back(Report('L', alpha, avg_time_lp, avg_time_lp_del, avg_probe_lp, avg_probe_lp_del));
+    reports.push_back(Report('Q', alpha, avg_time_qp, avg_time_qp_del, avg_probe_qp, avg_probe_qp_del));
+    reports.push_back(Report('D', alpha, avg_time_dh, avg_time_dh_del, avg_probe_dh, avg_probe_dh_del));
 }
 
 int main() {
@@ -258,6 +289,77 @@ int main() {
 
     for (ld i = 0.4; i <= 0.91; i = i+0.1) {
         generate_report(i);
+    }
+
+    int sz = reports.size();
+
+    // performance of separate chaining in various load factors
+    freopen("separate_chaining_all_load_factors.csv", "w", stdout);
+    cout << "Load factor,Avg search time before deletion, Avg search time after deletion\n";
+    for (int i = 0; i < sz; i++) {
+        if (reports[i].type != 'S') continue;
+        cout << reports[i].alpha << ',' << reports[i].time_before_del << ',' << reports[i].time_after_del << '\n';
+    }
+
+    // performance of linear probing in various load factors
+    freopen("linear_probing_all_load_factors.csv", "w", stdout);
+    cout << "Load factor,Avg search time before deletion,Avg number of probes before deletion,Avg search time after deletion,Avg number of probes after deletion\n";
+    for (int i = 0; i < sz; i++) {
+        if (reports[i].type != 'L') continue;
+        cout << reports[i].alpha << ',' << reports[i].time_before_del << ',' << reports[i].probe_before_del << ',';
+        cout << reports[i].time_after_del << ',' << reports[i].probe_after_del << '\n';
+    }
+
+    // performance of quadratic probing in various load factors
+    freopen("quadratic_probing_all_load_factors.csv", "w", stdout);
+    cout << "Load factor,Avg search time before deletion,Avg number of probes before deletion,Avg search time after deletion,Avg number of probes after deletion\n";
+    for (int i = 0; i < sz; i++) {
+        if (reports[i].type != 'Q') continue;
+        cout << reports[i].alpha << ',' << reports[i].time_before_del << ',' << reports[i].probe_before_del << ',';
+        cout << reports[i].time_after_del << ',' << reports[i].probe_after_del << '\n';
+    }
+
+    // performance of double hashing in various load factors
+    freopen("double_hashing_all_load_factors.csv", "w", stdout);
+    cout << "Load factor,Avg search time before deletion,Avg number of probes before deletion,Avg search time after deletion,Avg number of probes after deletion\n";
+    for (int i = 0; i < sz; i++) {
+        if (reports[i].type != 'D') continue;
+        cout << reports[i].alpha << ',' << reports[i].time_before_del << ',' << reports[i].probe_before_del << ',';
+        cout << reports[i].time_after_del << ',' << reports[i].probe_after_del << '\n';
+    }
+
+    // performance of various collision resolution methods in all load factors
+    ld eps = 1e-6;
+    for (ld i = 0.4; i <= 0.91; i = i+0.1) {
+        string lf = to_string(i).substr(0, to_string(i).find(".") + 2);
+        string filename = "all_performance_in_load_factor " + lf + ".csv";
+        char fn[500];
+        strncpy(fn, filename.c_str(), sizeof(fn));
+        freopen(fn, "w", stdout);
+        cout << "Method,Avg search time before deletion,Avg number of probes before deletion,Avg search time after deletion,Avg number of probes after deletion\n";
+        for (int j = 0; j < sz; j++) {
+            if (abs(i - reports[j].alpha) < eps) {
+                if (reports[j].type == 'S') {
+                    cout << "Separate Chaining";
+                }
+                else if (reports[j].type == 'L') {
+                    cout << "Linear Probing";
+                }
+                else if (reports[j].type == 'Q') {
+                    cout << "Quadratic Probing";
+                }
+                else {
+                    cout << "Double Hashing";
+                }
+                cout << ',' << reports[j].time_before_del;
+                if (reports[j].type == 'S') cout << ",N/A";
+                else cout << ',' << reports[j].probe_before_del;
+                cout << ',' << reports[j].time_after_del;
+                if (reports[j].type == 'S') cout << ",N/A";
+                else cout << ',' << reports[j].probe_after_del;
+                cout << '\n';
+            }
+        }
     }
 
     return 0;
