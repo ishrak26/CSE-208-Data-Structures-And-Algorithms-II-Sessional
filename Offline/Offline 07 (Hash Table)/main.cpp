@@ -63,21 +63,14 @@ void generate_report(ld alpha) {
         if (ins) {
             // successful insertion
             ins = lp.insert(words[i], i+1);
-//            cerr << "lp insert ok\n";
             assert(ins);
             ins = qp.insert(words[i], i+1);
-//            cerr << "qp insert ok\n";
             assert(ins);
 
             ins = dh.insert(words[i], i+1);
-//            cerr << "dh insert ok\n";
             assert(ins);
             inserted_idx.push_back(i);
             i++;
-//            cerr << "insert ok\n";
-        }
-        else {
-//            cerr << "duplicate\n";
         }
     }
     assert(inserted_idx.size() == n);
@@ -131,22 +124,10 @@ void generate_report(ld alpha) {
     ld avg_time_lp = sum_lp / p;
     ld avg_time_qp = sum_qp / p;
     ld avg_time_dh = sum_dh / p;
-    cerr << "time\n";
-    cerr << avg_time_sc << " ns\n";
-    cerr << avg_time_lp << " ns\n";
-    cerr << avg_time_qp << " ns\n";
-    cerr << avg_time_dh << " ns\n";
-    cerr << '\n';
 
     ld avg_probe_lp = probe_sum_lp / (ld)p;
     ld avg_probe_qp = probe_sum_qp / (ld)p;
     ld avg_probe_dh = probe_sum_dh / (ld)p;
-    cerr << "probes\n";
-    cerr << avg_probe_lp << '\n';
-    cerr << avg_probe_qp << '\n';
-    cerr << avg_probe_dh << '\n';
-
-
 
     // delete
     random_shuffle(inserted_idx.begin(), inserted_idx.end());
@@ -169,9 +150,7 @@ void generate_report(ld alpha) {
         int idx = rand() % p;
         idx = inserted_idx[idx];
         chrono::steady_clock::time_point begin = chrono::steady_clock::now();
-//        cerr << "before sc search\n";
         bool srch = sc.search(words[idx]);
-//        cerr << "sc search ok\n";
         chrono::steady_clock::time_point end = chrono::steady_clock::now();
 //        assert(!srch);
         ld tot_time_sc = chrono::duration_cast<chrono::nanoseconds> (end - begin).count();
@@ -182,7 +161,6 @@ void generate_report(ld alpha) {
 
         begin = chrono::steady_clock::now();
         srch2 = lp.search(words[idx]);
-//        cerr << "lp search ok\n";
         srch = srch2.first;
         end = chrono::steady_clock::now();
         assert(!srch);
@@ -192,7 +170,6 @@ void generate_report(ld alpha) {
 
         begin = chrono::steady_clock::now();
         srch2 = qp.search(words[idx]);
-//        cerr << "qp search ok\n";
         srch = srch2.first;
         end = chrono::steady_clock::now();
         assert(!srch);
@@ -202,7 +179,6 @@ void generate_report(ld alpha) {
 
         begin = chrono::steady_clock::now();
         srch2 = dh.search(words[idx]);
-//        cerr << "dh search ok\n";
         srch = srch2.first;
         end = chrono::steady_clock::now();
         assert(!srch);
@@ -210,7 +186,7 @@ void generate_report(ld alpha) {
         sum_dh += tot_time_dh;
         probe_sum_dh += srch2.second;
     }
-//    cerr << "deleted search ok\n";
+
     // search from the non-deleted elements
     for (int i = 0, rem = p - (p/2); i < rem; i++) {
         int idx = p + rand() % (n-p);
@@ -253,25 +229,15 @@ void generate_report(ld alpha) {
         sum_dh += tot_time_dh;
         probe_sum_dh += srch2.second;
     }
-    cerr << "After deletion\n";
+
     ld avg_time_sc_del = sum_sc / p;
     ld avg_time_lp_del = sum_lp / p;
     ld avg_time_qp_del = sum_qp / p;
     ld avg_time_dh_del = sum_dh / p;
-    cerr << "time\n";
-    cerr << avg_time_sc_del << " ns\n";
-    cerr << avg_time_lp_del << " ns\n";
-    cerr << avg_time_qp_del << " ns\n";
-    cerr << avg_time_dh_del << " ns\n";
-    cerr << '\n';
 
     ld avg_probe_lp_del = probe_sum_lp / (ld)p;
     ld avg_probe_qp_del = probe_sum_qp / (ld)p;
     ld avg_probe_dh_del = probe_sum_dh / (ld)p;
-    cerr << "probes\n";
-    cerr << avg_probe_lp_del << '\n';
-    cerr << avg_probe_qp_del << '\n';
-    cerr << avg_probe_dh_del << '\n';
 
     reports.push_back(Report('S', alpha, avg_time_sc, avg_time_sc_del));
     reports.push_back(Report('L', alpha, avg_time_lp, avg_time_lp_del, avg_probe_lp, avg_probe_lp_del));
@@ -282,9 +248,9 @@ void generate_report(ld alpha) {
 int main() {
     generate_all_words();
 
-//    cin >> m;
+    cin >> m;
 
-    m = 100003;
+//    m = 100003;
 //    test_hash_functions();
 
     for (ld i = 0.4; i <= 0.91; i = i+0.1) {
