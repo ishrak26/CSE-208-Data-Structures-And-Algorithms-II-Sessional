@@ -143,6 +143,8 @@ bool comp(pair<int, int> a, pair<int, int> b) {
     return a.first < b.first;
 }
 
+// decision problem
+// checks if any bound exceeds max bound
 int check_branching(int fr, int fc, vector<vector<char> > &mat, int max_bound) {
     if (fr == fc) {
         if (fr == n) {
@@ -208,6 +210,8 @@ int check_branching(int fr, int fc, vector<vector<char> > &mat, int max_bound) {
     return 0;
 }
 
+// transforms the given matrix into the desired matrix
+// final bound will be bound
 int find_final_matrix(int fr, int fc, vector<vector<char> > &mat, int bound) {
     if (fr == fc) {
         if (fr == n) {
@@ -303,7 +307,7 @@ int main() {
             cout << mid << '\n';
             for (int i = 1; i <= n; i++) {
                 for (int j = 1; j <= n; j++) {
-                    cout << mat[i][j];
+                    cout << mat[i][j] << ' ';
                 }
                 cout << '\n';
             }
@@ -317,8 +321,15 @@ int main() {
 
 /*
 4
-XOOX
-OOXO
-XOOX
-OXXX
+X 0 0 X
+0 0 X 0
+X 0 0 X
+0 X X X
+
+-->
+2
+X 0 0 0
+X X X 0
+0 0 X X
+0 0 X X
 */
