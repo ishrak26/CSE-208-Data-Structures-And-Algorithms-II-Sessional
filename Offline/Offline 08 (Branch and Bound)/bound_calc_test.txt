@@ -61,3 +61,11 @@ OOXX
 OOXX
 4 4
 --> 2
+
+4
+OXOX
+XOOO
+OXOX
+XOXX
+1 2
+--> 2
