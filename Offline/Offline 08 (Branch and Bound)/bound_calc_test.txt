@@ -1,0 +1,63 @@
+4
+XOOX
+OOXO
+XOOX
+OXXX
+1 1
+--> 2
+
+4
+OXOX
+XOOO
+OXOX
+XOXX
+2 2
+--> 3
+
+4
+XOXX
+OXOX
+XOOO
+OXOX
+2 2
+--> 3
+
+4
+XXOO
+OOOX
+XXOO
+XOXX
+1 2
+--> 3
+
+4
+XOOO
+XXXO
+OOXX
+OOOX
+3 4
+--> 2
+
+4
+XOOO
+XXOX
+OOXX
+OOXX
+3 4
+--> 3
+
+4
+XOOO
+OOXX
+OOXX
+XXOX
+3 3
+--> 3
+
+4
+XOOO
+XXXO
+OOXX
+OOXX
+4 4
+--> 2
